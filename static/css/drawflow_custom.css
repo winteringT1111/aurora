@@ -1,0 +1,255 @@
+/* =========================================
+   에디터 전체 레이아웃
+   ========================================= */
+.editor-container {
+    position: relative;
+    width: 100%;
+    height: 100vh; /* 화면 전체 사용 */
+    background-color: #e4e0d2; /* 캔버스 뒷배경: 톤 다운된 베이지 */
+    background-image: 
+        radial-gradient(#cdc6b8 1px, transparent 1px),
+        radial-gradient(#cdc6b8 1px, transparent 1px);
+    background-size: 40px 40px; /* 점박이 모눈종이 패턴 */
+    background-position: 0 0, 20px 20px;
+    overflow: hidden;
+}
+
+.editor-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
+#drawflow {
+    width: 100%;
+    height: 100%;
+}
+
+/* 좌측 상단 메뉴 버튼 */
+.editor-menu {
+    position: absolute;
+    top: 30px;
+    left: 140px; /* 사이드바(네비게이션)를 피해서 배치 */
+    z-index: 100;
+}
+
+.btn-add {
+    background-color: #fcfbf6;
+    border: 2px solid #ba9e7a;
+    color: #8c7e6c;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(140, 130, 115, 0.2);
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+}
+
+.btn-add:hover {
+    background-color: #ba9e7a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(186, 158, 122, 0.3);
+}
+
+/* =========================================
+   우측 인스펙터 패널
+   ========================================= */
+.inspector-panel {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 320px;
+    max-height: 90vh;
+    background: rgba(252, 251, 246, 0.95);
+    backdrop-filter: blur(5px);
+    border: 2px solid #cdc6b8;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(97, 88, 72, 0.15);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.inspector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f7f6ec;
+    border-bottom: 1px solid #e2d5c3;
+}
+
+.inspector-header h4 {
+    margin: 0;
+    color: #8c7e6c;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.header-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.header-buttons button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.header-buttons button:hover { filter: brightness(0.9); }
+.btn-delete { background: #b58c8c; color: white; }
+.btn-save { background: #ba9e7a; color: white; box-shadow: 0 2px 5px rgba(186,158,122,0.3); }
+
+.inspector-body {
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.inspector-body::-webkit-scrollbar { width: 6px; }
+.inspector-body::-webkit-scrollbar-thumb { background: #d4c5b0; border-radius: 3px; }
+
+/* 입력 폼 디자인 */
+.input-group { margin-bottom: 20px; }
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: #a19279;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.input-group input, 
+.input-group select, 
+.input-group textarea {
+    width: 100%;
+    background: #e4e0d2;
+    border: 1px solid #cdc6b8;
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: #615848;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus, 
+.input-group select:focus, 
+.input-group textarea:focus {
+    border-color: #ba9e7a;
+    background: #ebe8de;
+}
+
+/* 이미지 업로드 박스 */
+.image-upload-box {
+    width: 100%;
+    min-height: 80px;
+    background: #e4e0d2;
+    border: 2px dashed #cdc6b8;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: #a19279;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: all 0.2s;
+    overflow: hidden;
+    position: relative;
+}
+
+.image-upload-box:hover {
+    border-color: #ba9e7a;
+    color: #8c7e6c;
+}
+
+.image-upload-box img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+}
+
+/* =========================================
+   Drawflow 노드 커스터마이징 (가장 중요!)
+   ========================================= */
+/* 노드 본체 */
+.drawflow .drawflow-node {
+    background: #fcfbf6;
+    border: 2px solid #cdc6b8;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(122, 106, 88, 0.1);
+    color: #615848;
+    padding: 0; /* 커스텀 렌더링을 위해 패딩 제거 */
+    width: 220px;
+}
+
+/* 선택된 노드 강조 */
+.drawflow .drawflow-node.selected {
+    border: 2px solid #ba9e7a;
+    box-shadow: 0 4px 15px rgba(186, 158, 122, 0.3);
+}
+
+/* 노드 입력/출력 동그라미 (포트) */
+.drawflow .drawflow-node .input, 
+.drawflow .drawflow-node .output {
+    background: #fcfbf6;
+    border: 2px solid #ba9e7a;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+.drawflow .drawflow-node .input:hover, 
+.drawflow .drawflow-node .output:hover {
+    background: #ba9e7a;
+}
+
+/* 노드를 잇는 선(Connection) 디자인 */
+.drawflow .connection .main-path {
+    stroke: #ba9e7a; /* 베이지-골드 톤의 선 */
+    stroke-width: 3px;
+}
+
+/* 캔버스 내 노드의 커스텀 내용물 디자인 (JS에서 삽입하는 HTML 구조 기준) */
+.drawflow-node .box {
+    padding: 15px;
+    text-align: center;
+}
+
+.drawflow-node .box .title-box {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #8c7e6c;
+    border-bottom: 1px dashed #cdc6b8;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+}
+
+.drawflow-node .box .content-preview {
+    font-size: 0.8rem;
+    color: #a19279;
+    text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 두 줄까지만 보이게 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 캐릭터 업로드 박스 미리보기는 이미지가 잘리지 않게 조정 */
+.char-upload-box img {
+    object-fit: contain !important;
+    padding: 10px; /* 상자 테두리에 캐릭터가 너무 딱 붙지 않게 */
+}
+
+
+

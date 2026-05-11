@@ -1,0 +1,464 @@
+body, html {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #615848;
+}
+
+html, body, * {
+    -ms-overflow-style: none !important; /* IE 및 Edge */
+    scrollbar-width: none !important;    /* 파이어폭스 */
+}
+
+/* 2. 크롬, 사파리, 최신 Edge 등 WebKit 기반 브라우저용 */
+*::-webkit-scrollbar {
+    display: none !important;
+}
+
+.store-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    margin: 0 auto;
+}
+
+/* 좌측 상세 패널 */
+.store-left {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.empty-detail {
+    color: #a19279;
+    font-size: 1.2rem;
+    font-family: 'Cinzel Decorative', serif;
+}
+
+.item-detail-card {
+    background-color: #fcfbf6;
+    border: 2px solid #e2d5c3;
+    border-radius: 12px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    animation: fadeIn 0.4s ease-out;
+}
+
+
+
+
+
+/* 좌측 상세 카드의 이미지 상자 */
+.detail-img-box {
+    background-color: #f5f3e9; /* 배경색은 포근한 베이지 */
+    border: 1px solid #d4c5b0;
+    border-radius: 8px;
+    width: 220px; 
+    height: 220px;
+    margin: 0 auto 30px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 15px rgba(161, 146, 121, 0.05); /* 은은한 안쪽 그림자 */
+}
+
+.detail-img-box img {
+    max-width: 70%; 
+    max-height: 70%;
+    object-fit: contain;
+    /* 💡 픽셀 아트일 경우 이 옵션을 넣어야 이미지가 깨지지 않고 선명하게 나옵니다 */
+    image-rendering: pixelated; 
+    /* 이미지에 살짝 입체감을 주는 그림자 */
+    filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.15));
+    transition: transform 0.3s ease;
+}
+
+/* 마우스를 올리면 아이템이 살짝 커지는 효과 */
+.item-detail-card:hover #detailImg {
+    transform: scale(1.05);
+}
+
+.detail-name {
+    font-size: 1.6rem;
+    color: #4a3f31;
+    margin: 0 0 15px 0;
+    font-family: 'Hahmlet', 'Noto Sans KR', sans-serif;
+    font-weight: bold;
+}
+
+.detail-desc {
+    font-size: 0.95rem;
+    color: #8c7e6c;
+    line-height: 1.6;
+    min-height: 60px;
+    margin-bottom: 30px;
+}
+
+.detail-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px dashed #d4c5b0;
+}
+
+.detail-price {
+    font-size: 1.3rem;
+    font-family: 'Cinzel Decorative', serif;
+    color: #8c7e6c;
+    font-weight: bold;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: #4a3f31;
+    font-size: 1.2rem;
+    width: 45px; height: 45px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+
+    transform: translateY(-2px);
+}
+
+.icon1 {
+    width: 35px;
+    
+}
+
+.icon2 {
+    width: 30px;
+    
+}
+
+/* 우측 상점 리스트 패널 */
+.store-right {
+    width: 650px;
+    height: 100vh;
+    background-color: #fcfbf6;
+    border-left: 2px solid #e2d5c3;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 50px;
+}
+
+.store-right::-webkit-scrollbar { width: 6px; }
+.store-right::-webkit-scrollbar-thumb { background: #d4c5b0; border-radius: 3px; }
+
+.store-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.store-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2.5rem;
+    color: #4a3f31;
+    margin: 0;
+}
+
+.current-gold {
+    background-color: #e8e2d2;
+    padding: 8px 20px;
+    border-radius: 20px;
+    color: #615848;
+    font-weight: bold;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.1rem;
+}
+
+/* =========================================
+   상점 카테고리 탭 (수정됨: 다중 카테고리 대응)
+   ========================================= */
+.store-tabs {
+    display: flex;
+    flex-wrap: wrap; /* 💡 카테고리가 많으면 자연스럽게 다음 줄로 넘어가도록 설정 */
+    gap: 8px;        /* 탭 사이의 간격을 살짝 줄임 */
+    margin-bottom: 25px;
+    justify-content: flex-start; /* 좌측 정렬 (중앙 정렬을 원하시면 center로 변경) */
+}
+
+.store-tab {
+    padding: 6px 14px; /* 💡 상하좌우 패딩을 줄여서 버튼 크기를 작게 만듦 */
+    font-size: 0.85rem; /* 💡 폰트 크기 축소 */
+    font-family: 'Hahmlet', 'Noto Sans KR', sans-serif;
+    font-weight: bold;
+    color: #615848;
+    background-color: rgba(245, 243, 233, 0.8);
+    border: 1px solid #c8bcab;
+    border-radius: 20px; /* 둥글고 세련된 태그 모양 */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+    white-space: nowrap; /* 글자가 버튼 안에서 두 줄로 깨지는 것 방지 */
+}
+
+.store-tab:hover {
+    background-color: #fcfbf6;
+    border-color: #a19279;
+    transform: translateY(-2px); /* 마우스 올렸을 때 살짝 위로 들림 */
+}
+
+.store-tab.active {
+    background-color: #4a3f31;
+    color: #fcfbf6;
+    border-color: #4a3f31;
+    box-shadow: 0 4px 10px rgba(74, 63, 49, 0.3);
+}
+
+/* 💡 화면이 좁은 모바일/태블릿 환경에서는 스크롤이 가능하게 하려면 아래 코드를 추가하세요 (선택사항) */
+@media (max-width: 768px) {
+    .store-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 10px; /* 스크롤바 공간 확보 */
+        -ms-overflow-style: none; scrollbar-width: none; /* 스크롤바 숨김 */
+    }
+    .store-tabs::-webkit-scrollbar { display: none; }
+}
+
+/* =========================================
+   아이템 그리드 (카드형 디자인)
+   ========================================= */
+/* =========================================
+   상점 아이템 그리드 & 카드 디자인
+   ========================================= */
+
+/* 💡 화면 크기에 맞춰 카드가 유동적으로 배치되는 그리드 */
+.store-grid {
+    display: grid;
+    /* 카드가 너무 크지 않게, 모바일에선 2~3개, PC에선 4~5개씩 나오도록 설정 */
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+    gap: 20px;
+    padding: 10px 5px;
+}
+
+/* 💡 아이템 카드 본체 (양피지 질감 느낌) */
+.store-item {
+    background: linear-gradient(145deg, #fdfcf7, #f5f3e9);
+    border: 1px solid #d4c5b0;
+    border-radius: 10px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(74, 63, 49, 0.05); /* 은은한 그림자 */
+    position: relative;
+}
+
+/* 마우스 올렸을 때의 상호작용 (카드가 위로 뜨면서 빛나는 효과) */
+.store-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 20px rgba(74, 63, 49, 0.15);
+    border-color: #a19279;
+}
+
+/* 💡 아이템 이미지 프레임 */
+.item-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background-color: #dbd4c4; /* 어두운 아이보리 톤 배경 */
+    border-radius: 8px;
+    border: 2px solid #c8bcab;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    /* 안쪽으로 쏙 들어간 듯한 입체감 */
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.1); 
+}
+
+.item-icon {
+    width: 80%;
+    height: 80%;
+    object-fit: cover; /* 이미지가 프레임에 꽉 차게 */
+}
+
+/* 💡 아이템 텍스트 정보 영역 */
+.item-info {
+    text-align: center;
+    width: 100%;
+}
+
+/* 새로 추가된 카테고리 글씨 */
+.item-category {
+    font-size: 0.75rem;
+    color: #a19279;
+    font-weight: bold;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.item-name {
+    font-family: 'Hahmlet', 'Noto Sans KR', serif;
+    font-size: 1.05rem;
+    color: #4a3f31;
+    font-weight: 800;
+    margin-bottom: 10px;
+    word-break: keep-all; /* 단어 단위로 줄바꿈 (이름이 안 예쁘게 끊기지 않음) */
+    line-height: 1.2;
+}
+
+/* 가격 표시 뱃지 */
+.item-price {
+    font-size: 0.9rem;
+    color: #615848;
+    font-weight: bold;
+    background-color: rgba(212, 197, 176, 0.3); /* 은은한 갈색 배경 */
+    padding: 5px 12px;
+    border-radius: 15px;
+    display: inline-block;
+}
+
+
+
+/* 팝업창 공통 (이전과 동일) */
+.custom-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.custom-modal.show {
+    display: flex;
+    animation: bgFadeIn 0.2s ease-out forwards;
+}
+
+.custom-modal.show .modal-box {
+    animation: boxPopUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+}
+
+@keyframes bgFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes boxPopUp { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-box {
+    background-color: #fcfbf6;
+    border: 2px solid #e2d5c3;
+    border-radius: 12px;
+    width: 320px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    color: #615848;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.5rem;
+    color: #b58c8c;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close:hover { color: #4a3f31; }
+
+.modal-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.5rem;
+    color: #4a3f31;
+    margin: 0 0 10px 0;
+}
+
+.modal-tag {
+    background-color: #e8e2d2;
+    color: #8c7e6c;
+    padding: 4px 15px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: 'Cinzel Decorative', serif;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.modal-btn {
+    background-color: #fcfbf6;
+    color: #8c7e6c;
+    border: 1px solid #a19279;
+    padding: 8px 30px;
+    border-radius: 20px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn:hover {
+    background-color: #a19279;
+    color: #fff;
+}
+
+.modal-input {
+    background-color: #fff;
+    border: 1px solid #d4c5b0;
+    color: #4a3f31;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.modal-input:focus { border-color: #8c7e6c; }
+
+/* 수량 조절기 (+, -) */
+.qty-wrapper {
+    display: inline-flex;
+    align-items: center;
+    background-color: #f5f3e9;
+    border: 1px solid #d4c5b0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qty-btn {
+    background: none; border: none;
+    font-size: 1.2rem;
+    width: 40px; height: 40px;
+    cursor: pointer;
+    color: #8c7e6c;
+    transition: background 0.2s;
+}
+
+.qty-btn:hover { background-color: #e8e2d2; color: #4a3f31; }
+
+.qty-input {
+    width: 50px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #4a3f31;
+    outline: none;
+    font-family: 'Cinzel Decorative', serif;
+}
+
+/* input type number의 기본 화살표 숨기기 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+}

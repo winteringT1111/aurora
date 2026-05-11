@@ -1,0 +1,375 @@
+/* =========================================
+   인벤토리 탭 레이아웃
+   ========================================= */
+.inv-header {
+    margin-top: 50px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.inv-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2rem;
+    color: #8c7e6c;
+    margin: 0 0 10px 0;
+    
+    letter-spacing: 2px;
+}
+
+.inv-currency {
+    display: inline-block;
+    background-color: #f5f3e9;
+    border: 1px solid #e2d5c3;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #a19279;
+    gap: 15px;
+    display: inline-flex;
+}
+
+.inv-grid {
+    display: grid;
+    /* 넓이에 맞춰 75px 크기의 칸을 자동으로 채워 넣음 */
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+    gap: 12px;
+    padding: 10px 5px;
+}
+
+.inv-slot {
+    aspect-ratio: 1 / 1;
+    background-color: #f5f3e9;
+    border: 1px solid #d4c5b0;
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+}
+
+.inv-slot:hover:not(.empty) {
+    border-color: #a19279;
+    box-shadow: 0 4px 8px rgba(161, 146, 121, 0.2);
+    transform: translateY(-2px);
+    background-color: #fff;
+}
+
+.inv-slot.empty {
+    cursor: default;
+    background-color: rgba(245, 243, 233, 0.5);
+    border: 1px dashed #e2d5c3;
+}
+
+.inv-item-img {
+    max-width: 65%;
+    max-height: 65%;
+    object-fit: contain;
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+}
+
+.inv-qty {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    
+    /* 💡 예쁜 뱃지 디자인 적용 */
+    background-color: #8c7e6c; /* 테마에 맞는 부드러운 갈색 배경 */
+    color: #fcfbf6;            /* 배경에 대비되는 밝은 아이보리 글씨 */
+    padding: 2px 6px;          /* 글씨 주변 여백 */
+    border-radius: 8px;        /* 둥글둥글한 모서리 */
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* 살짝 떠보이는 그림자 */
+    
+    font-size: 0.7rem;
+    font-weight: bold;
+    font-family: 'Cinzel Decorative', 'Noto Sans KR', sans-serif;
+    letter-spacing: 0.5px;
+    z-index: 2; /* 이미지 위로 확실히 올라오도록 설정 */
+}
+
+
+
+
+/* =========================================
+   다크 테마 모달 (팝업창) - 애니메이션 분리
+   ========================================= */
+.custom-modal {
+    display: none; /* 평소엔 숨김 */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* 반투명 검은색 배경 */
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+/* 💡 1. 검은 배경은 크기 변화 없이 투명도만 살짝 켜짐 */
+.custom-modal.show {
+    display: flex;
+    animation: bgFadeIn 0.2s ease-out forwards;
+}
+
+@keyframes bgFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 💡 2. 실제 팝업창 본체(.modal-box)에만 튀어오르는 확대 효과 적용 */
+.custom-modal.show .modal-box {
+    animation: boxPopUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+    /* cubic-bezier를 넣으면 살짝 통통 튀는 느낌이 나서 더 RPG 게임 같습니다! */
+}
+
+@keyframes boxPopUp {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* =========================================
+   화사한 아이보리/골드 테마 모달 (팝업창) 디자인
+   ========================================= */
+.modal-box {
+    background-color: #fcfbf6; /* 우측 패널과 동일한 밝고 고급스러운 아이보리 */
+    border: 2px solid #e2d5c3; /* 부드러운 베이지/골드 테두리 */
+    border-radius: 12px;
+    width: 320px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15); /* 그림자는 연하고 부드럽게 */
+    color: #615848; /* 기본 텍스트 색상 */
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.5rem;
+    color: #b58c8c; /* 닫기 버튼은 약간의 붉은 톤이 섞인 색으로 포인트 */
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.modal-close:hover { color: #4a3f31; }
+
+.modal-img-wrap {
+    background-color: #f5f3e9; /* 메인 배경보다 살짝 어두운 톤으로 안착감 부여 */
+    width: 120px; height: 120px;
+    margin: 0 auto 20px auto;
+    border-radius: 8px;
+    border: 1px solid #d4c5b0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+}
+
+.modal-img-wrap img {
+    max-width: 80%; max-height: 80%;
+    image-rendering: pixelated; /* 픽셀 아트 선명하게 */
+    filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+}
+
+.modal-title {
+    font-family: 'Cinzel Decorative', serif; /* 영문이 섞일 경우를 대비한 고급 폰트 */
+    font-size: 1.5rem;
+    color: #4a3f31; /* 진한 고동색으로 가독성 확보 */
+    margin: 0 0 10px 0;
+}
+
+.modal-tag {
+    background-color: #a19279; /* 골드 브라운 톤의 태그 */
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.modal-desc {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #615848;
+}
+
+.modal-btn {
+    background-color: #f5f3e8;
+    color: #8c7e6c;
+    border: 1px solid #aca89e;
+    padding: 8px 30px;
+    border-radius: 20px; /* 둥글게 깎아서 세련되게 */
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn:hover {
+    background-color: #b3a58c;
+    color: #fff;
+}
+
+/* 양도 팝업 특화 스타일 */
+.modal-divider {
+    border: none;
+    border-top: 1px dashed #d4c5b0; /* 일반 실선 대신 점선으로 클래식한 느낌 */
+    margin: 15px 0;
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    width: 80px;
+    font-size: 0.9rem;
+    color: #8c7e6c;
+    font-weight: bold;
+}
+
+.modal-input {
+    flex: 1;
+    background-color: #fff; /* 입력창은 깔끔한 흰색 */
+    border: 1px solid #d4c5b0;
+    color: #4a3f31;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal-input:focus { border-color: #8c7e6c; }
+
+/* 💡 HTML에 적용되어 있던 이전 다크 테마용 하얀색 글씨 덮어쓰기 */
+#transferItemName {
+    color: #8c7e6c !important; /* 밝은 배경에 맞게 진한 색으로 강제 변경 */
+}
+
+/* 💡 연속된 팝업 전환 시 배경 애니메이션(깜빡임) 방지 */
+.custom-modal.show.no-bg-anim {
+    animation: none; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   새로운 스탯(STAT) 디자인
+   ========================================= */
+.stat-container {
+    padding: 20px 0;
+}
+
+/* 상단 용사 기여도 엠블럼 스타일 */
+.contribution-display {
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.contribution-emblem {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 140px;
+    height: 140px;
+    border: 3px double #d4c5b0; /* 클래식한 이중 선 */
+    border-radius: 50%;
+    background-color: #f5f3e9;
+    box-shadow: 0 0 20px rgba(161, 146, 121, 0.1);
+    margin-bottom: 15px;
+}
+
+.contribution-label {
+    font-size: 0.8rem;
+    color: #a19279;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.contribution-value {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2.8rem;
+    color: #4a3f31;
+    line-height: 1;
+}
+
+.contribution-rank {
+    font-size: 1rem;
+    color: #8c7e6c;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 세부 스탯 그리드 스타일 */
+.stat-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.2rem;
+    color: #a19279;
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #e2d5c3;
+    padding-bottom: 10px;
+}
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2열 배치 */
+    gap: 25px 40px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+}
+
+.s-name { color: #8c7e6c; }
+.s-val { color: #4a3f31; font-family: 'Cinzel Decorative', serif; }
+
+/* 게이지 바 스타일 */
+.s-bar-bg {
+    width: 100%;
+    height: 6px;
+    background-color: #e8e2d2;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.s-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #a19279, #d4c5b0); /* 부드러운 골드 그라데이션 */
+    border-radius: 3px;
+    transition: width 1s ease-in-out; /* 탭 전환 시 게이지가 차오르는 효과 */
+}
+

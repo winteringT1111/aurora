@@ -1,0 +1,185 @@
+/* =========================================
+   기본 초기화 및 전체 배경
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Noto Sans", sans-serif;
+}
+
+
+html, body {
+    overflow: hidden; 
+    user-select: none;
+    color: #4a4a4a;
+}
+
+
+/* 배경 이미지 및 흐림 효과 */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../img/bg1.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    z-index: -2;
+}
+
+/* 회원가입 박스 */
+.loginarea {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; height: 100%;
+}
+
+.signupbox {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    background-color: rgba(252, 251, 246, 0.95); 
+    border: 2px solid #e2d5c3;
+    border-radius: 15px;
+    padding: 60px 50px;
+    width: 400px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    /* 💡 forwards를 추가하면 애니메이션이 끝난 상태(100%)를 그대로 유지합니다 */
+    animation: fadeInDown 0.8s ease-out forwards; 
+}
+
+/* 💡 중앙 정렬(-50%)을 유지한 상태에서 애니메이션 적용 */
+@keyframes fadeInDown {
+    from { 
+        opacity: 0; 
+        /* X축은 정중앙(-50%), Y축은 정중앙에서 살짝 위(calc(-50% - 30px)) */
+        transform: translate(-50%, calc(-50% - 30px)); 
+    }
+    to { 
+        opacity: 1; 
+        /* 완벽한 정중앙으로 내려와서 안착 */
+        transform: translate(-50%, -50%); 
+    }
+}
+
+/* 제목 스타일 */
+.signup-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 2.5rem;
+    color: #4a3f31;
+    margin: 0 0 10px 0;
+    letter-spacing: 4px;
+}
+
+.signup-subtitle {
+    font-size: 0.9rem;
+    color: #a19279;
+    margin-bottom: 40px;
+    letter-spacing: 2px;
+}
+
+/* 입력 필드 영역 */
+.inputbox {
+    margin-bottom: 30px;
+}
+
+.input_section {
+    display: flex;
+    align-items: center;
+    background-color: #f5f3e9;
+    border: 1px solid #d4c5b0;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 12px 15px;
+    transition: all 0.3s;
+}
+
+.input_section:focus-within {
+    border-color: #a19279;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(161, 146, 121, 0.15);
+}
+
+.input_section i {
+    color: #a19279;
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.input_section input {
+    border: none;
+    background: none;
+    outline: none;
+    width: 100%;
+    font-family: 'Hahmlet', serif;
+    font-size: 1rem;
+    color: #4a3f31;
+}
+
+.input_section input::placeholder {
+    color: #c8bcab;
+}
+
+/* 계정 생성 버튼 */
+.loginbtn {
+    width: 100%;
+    padding: 15px;
+    background-color: #8c7e6c;
+    color: #fcfbf6;
+    border: 1px solid #a19279;
+    border-radius: 8px;
+    font-family: 'Hahmlet', serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: 25px;
+    letter-spacing: 2px;
+}
+
+.loginbtn:hover {
+    background-color: #a19279;
+    box-shadow: 0 5px 10px rgba(140, 126, 108, 0.3);
+    transform: translateY(-1px);
+}
+
+/* 하단 링크 */
+.bottom-links {
+    margin-top: 20px;
+    font-size: 0.85rem;
+}
+
+/* 하단 링크 */
+.bottom-links:hover {
+    text-decoration: none;
+}
+
+.tomain {
+    text-decoration: none;
+    color: #a19279;
+    transition: color 0.2s;
+}
+
+.tomain:hover {
+    color: #4a3f31;
+    text-decoration: none;
+}
+
+.divider {
+    color: #e2d5c3;
+    margin: 0 10px;
+}
+
+/* 숫자 입력 화살표 숨기기 (골드 입력란) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

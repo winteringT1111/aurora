@@ -1,0 +1,169 @@
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(5px); 
+    z-index: -1; 
+}
+
+
+
+@font-face {
+    font-family: 'SourceHanSerifK'; /* 원하는 폰트 이름 */
+    src: url('../SourceHanSerifK-Regular.otf') format('opentype'); /* TTF 파일 경로 */
+    font-style: normal; /* 폰트 스타일 (optional) */
+}
+
+
+.att_background {
+    width: 1050px;
+    height: 600px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    filter: drop-shadow(2px 2px 8px #e2dfdc);
+    background-image: url(../img/attendance_back.png);
+    background-size: cover;
+}
+
+.att_content {
+    width: 500px;
+    height: 380px;
+    position: fixed;
+    top: 66%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    user-select: none;
+}
+
+/* 처음엔 투명하게 */
+.att_background,
+.att_content,
+.att_btn {
+    opacity: 0;
+}
+
+/* fade-in-up 애니메이션 정의 */
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 30px)); /* 아래쪽에서 시작 */
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%); /* 원래 자리 */
+    }
+}
+
+/* 실제 실행되는 클래스 */
+.fadeInUp {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* 시간차 등장 (선택사항) */
+.att_content.fadeInUp {
+    animation-delay: 0.2s;
+}
+
+.att_btn.fadeInUp {
+    animation-delay: 0.4s;
+}
+
+.att_header {
+    text-align: center;
+    margin-top: 40px;
+    margin-bottom: 20px;
+} .att_header p {
+    margin: 0px;
+    margin-bottom: -5px;
+    font-size: 19px;
+    font-weight: 400;
+    color: #615d54;
+    font-family: 'SourceHanSerifK'; 
+}
+
+.att_info {
+    text-align: center;
+    color: #615d54;
+} .att_info h4 {
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-family: 'SourceHanSerifK'; 
+} .att_info p {
+    font-size: 18px;
+    font-weight:400;
+    font-family: 'SourceHanSerifK'; 
+}
+
+
+.att_btn {
+    width: 120px;
+    height: 45px;
+    font-family: 'SourceHanSerifK';
+    background-color: rgb(145,133,118); /* 현재 디자인의 버튼 색상과 유사하게 설정 */
+    border: solid 2px rgb(114, 103, 89);
+    color: #ecece7; /* 버튼 텍스트 색상 */
+    padding: 8px 30px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    bottom:10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.att_btn:hover {
+    background-color: #B5A489; /* 호버 시 색상 변경 */
+    border-color: #A18359;
+}
+
+
+
+
+.smallw {
+    font-size: medium !important;
+    margin-top: 5px !important;
+}
+
+
+/* 구매 완료 모달의 스타일 */
+#exampleModal .modal-content {
+    background-color: #282828; /* 현재 모달의 어두운 배경색과 유사하게 설정 */
+    border: 2px solid rgb(145,133,118);/* 테두리도 어두운 톤으로 맞춤 */
+    border-radius: 8px; /* 모서리를 살짝 둥글게 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* 그림자 효과 추가 */
+}
+
+#exampleModal .modal-body {
+    text-align: center;
+    padding: 40px;
+    color: #e0e0e0 !important; /* 텍스트 색상을 밝은 회색으로 변경 */
+    font-size: 1.3rem;
+}
+
+#exampleModal .modal-body p {
+    margin-bottom: 25px; /* 메시지와 버튼 사이 간격 */
+    font-weight: 600; /* 텍스트 굵기 조절 */
+}
+
+#exampleModal .modal-body  .modal_content_wrap .btn-primary {
+    background-color: rgb(145,133,118); /* 현재 디자인의 버튼 색상과 유사하게 설정 */
+    border-color: #8C704F; /* 버튼 테두리 색상 */
+    color: #ecece7; /* 버튼 텍스트 색상 */
+    padding: 8px 30px;
+    font-size: 1rem;
+    border-radius: 5px;
+    transition: background-color 0.2s ease;
+}
+
+#exampleModal .modal-body .modal_content_wrap .btn-primary:hover {
+    background-color: #B5A489; /* 호버 시 색상 변경 */
+    border-color: #A18359;
+}
+

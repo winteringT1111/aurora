@@ -1,0 +1,332 @@
+/* =========================================
+   공통 및 레이아웃
+   ========================================= */
+.potion-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    gap: 4%;
+    padding: 20px;
+    padding-left: 120px;
+}
+
+/* =========================================
+   좌측: 조합 솥 영역
+   ========================================= */
+.kettle_area {
+    flex: 2;
+    max-width: 900px;
+    height: 105%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image: url('../img/recipe_pot.png');
+    background-repeat: no-repeat;
+    background-position: bottom center;
+    background-size: contain;
+}
+
+.crafting-slots-wrapper {
+    width: 450px;
+    height: 550px;
+    background-image: url('../img/recipe_modal.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    position: relative;
+}
+
+.crafting-slots {
+    display: flex;
+    gap: 8.4px;
+    position: absolute;
+    top: 38.2%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.slot {
+    width: 75px;
+    height: 75px;
+    background: linear-gradient(to bottom, #e6e2db, #fffdf7);
+    
+    border: 2.5px solid #c0b59f;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.slot img { width: 80%; height: 80%; object-fit: contain; }
+
+.craft-prompt-text {
+    font-size: 1.05rem;
+    color: #a39787;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.5;
+    position: absolute;
+    top: 62%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.kettle-buttons {
+    display: flex;
+    gap: 15px;
+    position: absolute;
+    bottom: 17%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.kettle-buttons button {
+    padding: 10px 24px;
+    border-radius: 14px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 1px;
+}
+
+.btn-secondary { background-color: #e6e2d6; color: #8c7e6c; border: 2px solid #cdc6b8; }
+.btn-secondary:hover { background-color: #d8d3c5;  border: 2px solid #b9b2a2;}
+.btn-primary { background-color: #ccc0a5; color: #fff; border: 2px solid #b8af9c; }
+.btn-primary:hover { background-color: #bbae8f; transform: translateY(-2px); border: 2px solid #a79d89;  box-shadow: 0 6px 6px rgba(186, 158, 122, 0.4); }
+
+/* =========================================
+   우측: 인벤토리 영역 (가로 확장됨)
+   ========================================= */
+.inventory-area {
+    flex: 1.3; /* flex를 높여서 가로 공간을 더 차지하게 함 */
+    max-width: 500px; /* 기존 400px에서 500px로 넓게 확장 */
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(252, 249, 242, 0.85); 
+    backdrop-filter: blur(5px);
+    border: 2px solid #e2d5c3;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(140, 130, 115, 0.1);
+    overflow: hidden;
+}
+
+@font-face {
+    font-family: 'JoseonBoldMyongjo';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@1.0/ChosunKm.woff') format('woff');
+    font-weight: normal;
+    font-display: swap;
+}
+
+.inventory-header {
+    padding: 15px;
+    background-color: #f7f6ec;
+    color: #8c7e6c;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 2px;
+    font-family: 'JoseonBoldMyongjo', serif;
+    border-bottom: 1px solid #e2d5c3;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); /* 아이템이 예쁘게 분배되도록 조절 */
+    gap: 15px;
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    align-content: start;
+}
+
+/* 스크롤바 세팅 */
+.inventory-grid::-webkit-scrollbar { display: none; }
+.inventory-grid::-webkit-scrollbar-track { background: transparent; }
+.inventory-grid::-webkit-scrollbar-thumb { background: #d4c5b0; border-radius: 3px; }
+
+/* 아이템 카드 */
+.item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #fff;
+    border: 2px solid #e2d5c3;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.item:hover {
+    transform: translateY(-3px) scale(1.05);
+    border-color: #c9baa7;
+    box-shadow: 0 6px 12px rgba(186, 158, 122, 0.2);
+    z-index: 5;
+}
+
+.item.disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(80%); }
+.item img { width: 100%; height: 100%; padding: 8px; object-fit: contain; }
+
+/* 아이템 개수 뱃지 */
+.item-count {
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    background-color: #bba78c;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid #fcf9f2;
+    box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+    z-index: 8;
+}
+
+/* =========================================
+   💡 수정됨: 아이템 툴팁 (이미지 하단 배치 & 깔끔하게)
+   ========================================= */
+.item .item-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 105%; /* 이미지 아래로 위치 */
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px); /* 시작할 때 살짝 위에 있도록 설정 */
+    background-color: rgba(122, 116, 106, 0.9);
+    color: #f7f6ec;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: opacity 0.2s ease, transform 0.2s ease; /* 부드럽게 나타나는 애니메이션 */
+    z-index: 7;
+    pointer-events: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* 은은한 그림자 추가 */
+}
+
+
+.item:hover .item-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0); /* 스르륵 제자리로 내려오는 효과 */
+}
+
+.item-name { margin: 0; font-weight: bold; }
+.empty-inventory { grid-column: 1 / -1; text-align: center; color: #b5a898; margin-top: 20px; }
+
+.inventory-footer { padding: 0; }
+#recipe-book-btn {
+    width: 100%;
+    padding: 18px;
+    border: none;
+    background-color: #f7f6ec;
+    color: #a79a89;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-top: 1px solid #e2d5c3;
+    letter-spacing: 1px;
+}
+#recipe-book-btn:hover { background-color: #e6e2d6; color: #5c4f3d; }
+
+/* =========================================
+   모달 공통 & 결과 모달
+   ========================================= */
+.custom-modal .modal-content {
+    background-color: #fcf9f2;
+    border: 2px solid #cdc6b8;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(92, 79, 61, 0.2);
+    color: #5c4f3d;
+}
+
+.result-modal-content { text-align: center; padding: 30px; }
+.result-modal-content .modal-title { color: #ba9e7a; font-weight: bold; font-size: 1.4rem; margin-bottom: 20px; }
+.result-image-container { background-color: #fff; border: 2px dashed #e2d5c3; border-radius: 12px; padding: 30px; margin: 0 auto 20px; width: fit-content; }
+.result-image-container img { width: 90px; height: 90px; object-fit: contain; }
+#resultModalMessage { font-size: 1.1rem; margin-bottom: 25px; color: #8c7e6c; }
+.close-result-btn { width: 100%; padding: 12px; border-radius: 8px; font-size: 1rem; }
+
+/* =========================================
+   레시피 북 모달 (2단 레이아웃 적용)
+   ========================================= */
+.recipe-book-content { padding: 0; height: 70vh; display: flex; flex-direction: column; overflow: hidden; }
+.recipe-book-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; background-color: #f7f6ec; border-bottom: 1px solid #e2d5c3; }
+.recipe-title { margin: 0; color: #a09381; letter-spacing: 2px; font-weight: bold; }
+.modal-close-icon { background: none; border: none; font-size: 1.5rem; color: #b5a898; cursor: pointer; }
+.modal-close-icon:hover { color: #8c7e6c; }
+.recipe-book { flex-grow: 1; padding: 25px; background-color: #fcf9f2; overflow-y: hidden; } /* 스크롤은 grid 안에서 처리 */
+
+/* 💡 수정됨: 2열 Grid 적용 */
+.recipe-page { display: none; }
+.recipe-page.active {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 반반씩 2단으로 나눔 */
+    grid-auto-rows: max-content; /* 내용물 높이에 맞게 늘어남 */
+    gap: 15px; /* 양옆, 위아래 간격 */
+    padding-right: 10px;
+    height: 100%;
+    align-content: start; /* 위에서부터 차곡차곡 정렬 */
+}
+
+.recipe-entry {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* 결과와 재료들 사이 간격 축소 */
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #e2d5c3;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    transition: box-shadow 0.2s;
+}
+
+.recipe-entry:hover {
+    box-shadow: 0 4px 12px rgba(186, 158, 122, 0.15);
+    border-color: #cdc6b8;
+}
+
+.result-item { text-align: center; min-width: 90px; display: flex; flex-direction: column; align-items: center; }
+.recipe-item-name { margin: 8px 0 4px 0; font-size: 0.95rem; color: #5c4f3d; font-weight: bold; }
+.discoverer-info { font-size: 0.7rem; color: #a39887; }
+.discoverer-info.text-muted { color: #c4b9a1; }
+.recipe-icon { width: 62px; height: 62px; object-fit: contain; background-color: #f7f6ec; border: 1px solid #e2d5c3; border-radius: 8px; padding: 8px; }
+.recipe-icon-small { width: 45px; height: 45px; object-fit: contain; background-color: #f7f6ec; border: 1px solid #e2d5c3; border-radius: 6px; padding: 6px; }
+.undiscovered { filter: grayscale(100%) opacity(40%); }
+.equals-sign { font-size: 1.5rem; color: #cdc6b8; font-weight: 300; }
+/* =========================================
+   수정됨: 재료 목록 2x2 네모 배열
+   ========================================= */
+.ingredient-list {
+    display: grid;
+    grid-template-columns: repeat(2, 45px); /* 45px(아이콘 크기) 너비로 딱 2열 고정 */
+    gap: 6px; /* 위아래 양옆 간격 */
+    align-content: center;
+    justify-content: center;
+}
+.placeholder-box { background-color: #e6e2d6; border: 1px dashed #cdc6b8; color: #a39887; font-size: 1rem; font-weight: bold; display: flex; justify-content: center; align-items: center; }
+
+/* 네비게이션 영역 */
+.book-navigation { display: flex; justify-content: center; align-items: center; padding: 15px; background-color: #f7f6ec; border-top: 1px solid #e2d5c3; }
+.nav-btn { background: #fff; border: 1px solid #cdc6b8; color: #8c7e6c; padding: 6px 16px; border-radius: 15px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+.nav-btn:hover:not(:disabled) { background-color: #b9b299; color: #fff; border-color: #b6a38b; }
+.nav-btn:disabled { opacity: 0.4; cursor: not-allowed; background-color: #f7f6ec; }
+#page-number-display { margin: 0 25px; font-size: 1rem; color: #5c4f3d; font-weight: bold; }
+
+/* =========================================
+   등장 애니메이션
+   ========================================= */
+.inventory-area, .kettle_area { opacity: 0; transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+.inventory-area { transform: translateY(-20px); }
+.kettle_area { transform: translateY(20px); }
+.kettle_area.active { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+.inventory-area.active { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }

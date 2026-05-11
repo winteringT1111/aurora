@@ -1,0 +1,435 @@
+
+.character-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    margin: 0 auto;
+}
+
+
+@font-face {
+    font-family: 'JeonjuCraft'; /* 원하는 폰트 이름 */
+    src: url('../JeonjuCraft_Mj_Bold.ttf') format('truetype'); /* TTF 파일 경로 */
+    font-weight: bold; /* 폰트 두께 (optional) */
+    font-style: normal; /* 폰트 스타일 (optional) */
+}
+
+@font-face {
+    font-family: 'Adeston'; /* 원하는 폰트 이름 */
+    src: url('../Adeston.ttf') format('truetype'); /* TTF 파일 경로 */
+    font-weight: bold; /* 폰트 두께 (optional) */
+    font-style: normal; /* 폰트 스타일 (optional) */
+}
+
+@font-face {
+    font-family: 'SourceHanSerifK'; /* 원하는 폰트 이름 */
+    src: url('../SourceHanSerifK-Regular.otf') format('opentype'); /* TTF 파일 경로 */
+    font-style: normal; /* 폰트 스타일 (optional) */
+}
+
+
+
+
+
+
+
+/* =================================== ======
+   좌측: 일러스트 & 대사 영역
+   ========================================= */
+.left-panel {
+    flex: 1.2; /* 남은 공간 모두 차지 (약 60~65%) */
+    position: relative;
+    height: 100vh;
+    overflow-y: auto; /* 마우스 스크롤 시 아래로 내려감 */
+    overflow-x: hidden;
+}
+
+/* 스크롤바 숨기기 (깔끔하게) */
+.left-panel::-webkit-scrollbar { width: 0; }
+
+.char-image-wrapper {
+    width: 100%;
+    /* 이미지가 100vh보다 길게 설정되어 허벅지까지만 보이고 스크롤 가능하게 됨 */
+    min-height: 140vh; 
+    display: flex;
+    justify-content: center;
+}
+
+.char-img {
+    margin-top: 2%;
+    width: 70%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center; /* 머리부터 보여줌 */
+}
+
+/* 하단 그라데이션과 대사 (스크롤해도 항상 바닥에 고정됨) */
+.quote-overlay {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 120px 50px 50px 50px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+    box-sizing: border-box;
+    pointer-events: none; /* 텍스트 위에서도 스크롤 가능하게 */
+    display: flex;
+    align-items: flex-start; /* 💡 요소를 위쪽(Top) 기준으로 맞춤 */
+    gap: 15px; /* 💡 따옴표 이미지와 텍스트 사이의 가로 간격 */
+}
+
+.quote-img {
+    width: 50px;
+    margin-top: -10px; /* 💡 음수 마진을 주어 이미지를 살짝 위로 끌어올림 */
+    margin-left: 20px;
+}
+
+.quote-text {
+    color: #fff;
+    font-size: 1.8rem;
+    font-family: 'JeonjuCraft';
+    margin: 0;
+    margin-top: 20px; /* 💡 양수 마진을 주어 텍스트를 살짝 아래로 밀어냄 */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    line-height: 1.4; /* 대사가 두 줄 이상 길어질 경우를 대비해 줄간격 추가 */
+    display: inline-block;     /* transform을 먹이기 위해 필수 */
+    transform: scaleX(0.95);   /* 가로 비율을 85%로 압축 (숫자를 줄일수록 홀쭉해짐) */
+    transform-origin: left;
+}
+
+
+
+
+
+
+
+/* =========================================
+   우측: 정보 패널 영역
+   ========================================= */
+.right-panel {
+    /* 💡 480px에서 650px로 훨씬 넓게 수정했습니다! (더 넓히려면 이 숫자를 올리시면 됩니다) */
+    width: 620px; 
+    height: 100vh;
+    background-color: #fcfbf6;
+    border-left: 2px solid #e2d5c3;
+    overflow-y: auto;
+    box-sizing: border-box;
+    /* 💡 너비가 넓어진 만큼 안쪽 여백도 40px에서 50px로 넉넉하게 늘렸습니다 */
+    padding: 20px 60px; 
+
+}
+
+
+/* 우측 패널 스크롤바 디자인 */
+.right-panel::-webkit-scrollbar { display: none; }
+.right-panel::-webkit-scrollbar-thumb {  display: none; }
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   상단 이름 영역 (이미지 + 텍스트 나란히)
+   ========================================= */
+.info-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 전체 요소를 가운데 정렬 */
+    margin-bottom:45px;
+    position: relative;
+}
+
+.title-tag {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1rem;
+    color: #a19279;
+    letter-spacing: 2px;
+    margin-bottom: 20px; /* 타이틀과 이름 영역 사이의 간격 */
+}
+
+/* 💡 이미지와 텍스트를 나란히 배치하는 Flex 컨테이너 */
+.name-block {
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 */
+    gap: 30px; /* 다이아몬드 이미지와 이름 사이의 가로 간격 */
+}
+
+/* 다이아몬드 이미지 사이즈 제어 */
+.diamond-img {
+    width: 140px; 
+    height: auto;
+    object-fit: contain;
+    margin-left: -50px;
+}
+
+/* 텍스트는 좌측 정렬 */
+.name-text-box {
+    text-align: left;
+}
+
+.eng-name {
+    font-family: 'Adeston';
+    font-size: 4rem; /* 영문 이름 크게 */
+    margin: 0;
+    color: #8c7e6c; /* 레퍼런스 이미지와 비슷한 은은한 골드브라운 톤 */
+    line-height: 0.95; /* 줄간격을 좁혀서 Zafir와 Khaizar를 착 붙임 */
+    font-weight: normal;
+    display: inline-block;     /* transform을 먹이기 위해 필수 */
+    transform: scaleX(0.95);   /* 가로 비율을 85%로 압축 (숫자를 줄일수록 홀쭉해짐) */
+    transform-origin: left;
+    margin-top: 20px;
+}
+
+.kr-name {
+    font-size: 1.15rem;
+    color: #a19279;
+    margin-top: 5px; /* 영문 이름과 한글 이름 사이 간격 */
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-family: 'SourceHanSerifK';
+    transform: scaleX(0.95);   /* 가로 비율을 85%로 압축 (숫자를 줄일수록 홀쭉해짐) */
+    transform-origin: left;
+}
+
+
+
+
+
+
+
+
+
+/* =========================================
+   기본 스탯 그리드
+   ========================================= */
+.basic-stats {
+    display: grid;
+    /* 💡 수정됨: 영역을 꽉 채우지 않고, 각 단의 너비를 180px로 고정합니다. */
+    grid-template-columns: 230px 180px; 
+    
+    /* 💡 핵심: 고정된 그리드 항목들을 통째로 부모의 정중앙에 배치합니다. */
+    justify-content: center; 
+    
+    /* 위아래 간격 15px, 왼쪽/오른쪽 단 사이의 간격 40px */
+    gap: 15px 20px; 
+    
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    
+    /* 💡 테두리 선은 컨테이너 전체 길이를 따라가므로 쪼그라들지 않고 그대로 유지됩니다! */
+    border-bottom: 1px solid #e2d5c3; 
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #615848;
+    font-family: 'SourceHanSerifK';
+}
+
+.stat-label {
+    background-color: #e8e2d2;
+    color: #a19279;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-right: 15px;
+    width: 75px;
+    text-align: center;
+    font-family: 'SourceHanSerifK';
+    display: inline-block; 
+    transform: scaleX(0.98);   /* 가로 비율을 85%로 압축 (숫자를 줄일수록 홀쭉해짐) */
+    transform-origin: left;
+}
+
+/* 탭 메뉴 (아이콘) */
+.tab-menu {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.tab-icon {
+    font-size: 1.5rem;
+    color: #cdc6b8;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.tab-icon:hover, .tab-icon.active { color: #8c7e6c; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================
+   펼침 메뉴 (아코디언) 디자인 수정
+   ========================================= */
+.info-accordion {
+    /* 💡 수정됨: 왼쪽에서 오른쪽으로 부드럽게 사라지는 은은한 배경 그라데이션 */
+    background: linear-gradient(to right, #bbaf9e4f 0%, rgba(175, 168, 151, 0) 80%);
+    margin-bottom: 25px;
+    position: relative;
+    border-radius: 0 8px 8px 0; /* 왼쪽 선에 딱 붙도록 오른쪽만 살짝 둥글게 처리 */
+}
+
+/* 💡 아코디언 메뉴 왼쪽의 세로 그라데이션 선 */
+.info-accordion::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; /* 선의 두께 */
+    height: 100%;
+    /* 청록색에서 하늘색으로 떨어지는 그라데이션 */
+    background: linear-gradient(to bottom, #c7c1b2, #dad5c9); 
+    border-radius: 4px;
+}
+
+.info-accordion summary {
+    padding: 30px 20px 15px 30px; /* 왼쪽 선을 피해서 패딩 확보 */
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 1.5rem; 
+    color: #8c7e6c;
+    cursor: pointer;
+    list-style: none; 
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; 
+    position: relative;
+
+}
+
+/* 💡 'personality' 등의 제목 위에 뜨는 별 장식 */
+.info-accordion summary::before {
+    content: '✦ ✦ ✦';
+    position: absolute;
+    top: 8px; 
+    left: 30px; 
+    font-size: 1rem;
+    color: #bdb5a3; 
+    opacity: 0; /* 평소엔 숨김 */
+    transition: opacity 0.3s ease;
+    letter-spacing: 2px;
+}
+
+/* 아코디언이 열리면(open) 별 장식이 나타남 */
+.info-accordion[open] summary::before {
+    opacity: 1;
+}
+
+/* 우측의 + / x 아이콘 */
+.info-accordion summary::after {
+    content: '+';
+    font-size: 1.5rem;
+    transition: transform 0.3s;
+    line-height: 1; 
+}
+.info-accordion[open] summary::after {
+    transform: rotate(45deg); 
+}
+
+
+
+.profile_icon {
+    width: 25px;
+}
+
+
+
+
+
+/* =========================================
+   아코디언 스르륵 펼쳐지는 애니메이션
+   ========================================= */
+.accordion-content {
+    padding: 10px 20px 25px 30px; 
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #615848;
+    text-align: justify; 
+}
+
+/* 💡 아코디언이 열릴 때(open) 슬라이드 다운 애니메이션 실행 */
+.info-accordion[open] .accordion-content {
+    animation: accordionSlideDown 0.4s ease-out forwards;
+    overflow: hidden; /* 높이가 조절될 때 내용이 삐져나오지 않게 가려줌 */
+}
+
+/* 💡 애니메이션 프레임 설정 */
+@keyframes accordionSlideDown {
+    0% {
+        opacity: 0;
+        max-height: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+        max-height: 10000px; /* 내용물이 다 보일 만큼 충분히 큰 값 (텍스트가 더 길어지면 이 숫자를 늘려주세요) */
+    }
+}
+
+/* 성격 키워드 태그 */
+.keyword-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.keyword {
+    background-color: #b4ac97; 
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+} 
+
+
+
+
+/* =========================================
+   탭 콘텐츠 전환용 CSS
+   ========================================= */
+/* 기본적으로 모든 탭 콘텐츠는 숨김 처리 */
+.tab-content {
+    display: none;
+    /* 전환 시 부드러운 페이드인 애니메이션 */
+    animation: tabFadeIn 0.4s ease-out;
+}
+
+/* active 클래스가 붙은 탭 콘텐츠만 화면에 표시 */
+.tab-content.active {
+    display: block;
+}
+
+/* 탭 전환 애니메이션 */
+@keyframes tabFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px); /* 살짝 아래에서 위로 올라옴 */
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

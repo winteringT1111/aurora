@@ -1,0 +1,18 @@
+.snowflake {
+    position: absolute;
+    width: 3.2px; /* Snowflake size */
+    height: 3.2px; /* Snowflake size */
+    background: white; /* Snowflake color */
+    opacity: 0.8; /* Opacity */
+    border-radius: 50%;
+    pointer-events: none;
+    animation: rise linear infinite; /* Use the rise animation */
+    top: 100vh; /* Start from below the screen */
+}
+
+@keyframes rise {
+    to {
+        transform: translateY(-100vh); /* Move up by the entire height of the screen */
+    }
+}
+
