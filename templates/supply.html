@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/attendance.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Diphylleia&family=Tangerine&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "UI.html" %}
+
+<div class="gradient-overlay"></div> 
+
+
+    <div class="att_background">
+
+    <div class="att_content">
+        <div class="att_header">
+            <p>누적 보급 신청 건수: {{ attendance_count }}건</p>
+            <p class="smallw">보급 신청 시간: 〔 06시 ~ 20시 〕</p>
+        </div>
+        <div class="att_info">
+            <h4>보급 물품</h4>
+            <p>【 100 G, SP 초기화, 랜덤 아이템 】</p>
+        </div>
+        <form method="post" id="attendanceForm">
+            {% csrf_token %}
+            <button type="button" class="att_btn" id="submitAttendance">
+                신청
+            </button>
+        </form>
+    </div>    
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="modal_content_wrap">
+                    <p id="modalContent"></p>
+                    <button type="button" class="btn-primary" data-dismiss="modal">확인</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('submitAttendance').addEventListener('click', function() {
+        // Send AJAX request to handle attendance
+        fetch("{% url 'main:supply' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update modal content based on the server response
+            const modalContent = document.getElementById("modalContent");
+            if (data.show_modal === "modal1") {
+                modalContent.innerHTML = data.modal_message; // 출석 완료 메시지
+            } else {
+                modalContent.innerHTML = data.modal_message; // 출석 불가 메시지
+            }
+            // Show the modal
+            $('#exampleModal').modal('show');
+            
+            // Update attendance count and today's attendance status in the UI
+            document.querySelector('.att_header p:nth-child(1)').textContent = "누적 보급 신청 건수: " + data.attendance_count + "건";
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 기숙사 배경 요소들 선택
+        const attBackgroundElements = document.querySelectorAll('.att_background');
+        
+        // 각 배경에 대해 fadeIn 클래스를 추가하여 애니메이션 실행
+        attBackgroundElements.forEach(function(element) {
+            // 요소를 먼저 visibility를 'visible'로 설정하고, 애니메이션 시작
+            element.style.visibility = 'visible'; 
+            element.classList.add('fadeInDown');  // 'fadeIn' 클래스를 추가해 애니메이션 시작
+        });
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+    // 대상 요소 선택
+    const bg = document.querySelector('.att_background');
+    const content = document.querySelector('.att_content');
+    const content2 = document.querySelector('.att_btn');
+
+    // 애니메이션 시작
+    bg.classList.add('fadeInUp');
+    content.classList.add('fadeInUp');
+    content2.classList.add('fadeInUp');
+});
+    
+    
+</script>
+
+{% endblock %}

@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8">
+        <title>계정생성 | Aurora Foederis</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Hahmlet:wght@100..900&display=swap" rel="stylesheet">
+        <script src="https://kit.fontawesome.com/7076248453.js" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/signup.css' %}">
+    </head>
+    <body>
+        <div class="background-overlay"></div>
+
+        <div class="loginarea">
+            <div class="signupbox">
+                <div class="content_wrap">
+                    <h1 class="signup-title">SIGN UP</h1>
+                    <p class="signup-subtitle">새로운 여정을 위한 서약</p>
+
+                    <form method="post" action="{% url 'users:users_signup' %}">
+                        {% csrf_token %}
+    
+                        <div class="inputarea">
+                            <div class="inputbox">
+                                <div class="input_section">
+                                    <i class="fa-solid fa-user"></i>
+                                    <input placeholder="아이디" type="text" name="username" id="username" required>
+                                </div>
+                                <div class="input_section">
+                                    <i class="fa-solid fa-lock"></i>
+                                    <input placeholder="비밀번호" type="password" name="password1" id="password1" required>
+                                </div>
+                                <div class="input_section">
+                                    <i class="fa-solid fa-check-double"></i>
+                                    <input placeholder="비밀번호 확인" type="password" name="password2" id="password2" required>
+                                </div>
+                                <div class="input_section">
+                                    <i class="fa-solid fa-key"></i>
+                                    <input placeholder="커뮤니티 코드" type="text" name="commucode" id="commucode" required>
+                                </div>
+                                <div class="input_section">
+                                    <i class="fa-solid fa-coins"></i>
+                                    <input placeholder="보유 골드 (G)" type="number" name="gold" id="gold" min="0" value="0">
+                                </div>
+                            </div>
+                            
+                            <button class="loginbtn" type="submit">계정 생성</button>
+                        </div>
+                    </form>
+                    
+                    <div class="bottom-links">
+                        <a href="/" class="tomain">메인화면으로</a>
+                    </div>
+                </div>
+            </div>  
+        </div>
+    </body>
+</html>

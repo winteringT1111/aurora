@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+    /* 스크롤바 숨김 */
+    * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+    *::-webkit-scrollbar { display: none !important; }
+
+    .giftbox-container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        font-family: 'Hahmlet', 'Noto Sans KR', serif;
+    }
+
+    .giftbox-title {
+        text-align: center;
+        color: #4a3f31;
+        font-size: 2rem;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-family: 'Cinzel Decorative', serif;
+    }
+
+    .gift-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .gift-card {
+        background: #fdfcf7;
+        border: 2px dashed #d4c5b0;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 8px rgba(74, 63, 49, 0.05);
+        transition: transform 0.3s;
+        position: relative;
+    }
+
+    .gift-card:hover {
+        transform: translateY(-5px);
+        border-color: #a19279;
+    }
+
+    .gift-img-box {
+        width: 80px; height: 80px;
+        background: #dbd4c4;
+        border-radius: 10px;
+        display: flex; justify-content: center; align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .gift-img-box img {
+        width: 80%; height: 80%;
+        object-fit: cover; border-radius: 8px;
+    }
+
+    .gift-info { text-align: center; width: 100%; }
+    .gift-name { font-size: 1.2rem; font-weight: bold; color: #4a3f31; margin-bottom: 5px; font-family: 'Hahmlet', 'Noto Sans KR', serif;}
+    
+    .gift-meta { font-size: 0.85rem; color: #8c7e6c; margin-bottom: 15px; }
+    .gift-meta span { display: block; margin-bottom: 3px; }
+
+    .gift-msg-box {
+        background: rgba(212, 197, 176, 0.2);
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: #615848;
+        min-height: 50px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+
+    .claim-btn {
+        width: 100%;
+        padding: 10px;
+        background-color: #4a3f31;
+        color: #fcfbf6;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .claim-btn:hover { background-color: #615848; }
+
+    .empty-msg {
+        text-align: center; color: #8c7e6c;
+        grid-column: 1 / -1; margin-top: 50px; font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include "UI.html" %}
+<div class="giftbox-container">
+    <div class="giftbox-title">선물함</div>
+
+    <div class="gift-grid">
+        {% for gift in gifts %}
+        <div class="gift-card" id="gift-card-{{ gift.id }}">
+            <div class="gift-img-box">
+                <!-- 이미지 경로 설정 (도트 이미지 등 기존 방식 유지) -->
+                <img src="{% if gift.item.image %}{{ gift.item.image.url }}{% else %}{% static 'img/도트/' %}{{ gift.item.name }}.png{% endif %}" alt="{{ gift.item.name }}">
+            </div>
+            
+            <div class="gift-info">
+                <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
+                
+                <div class="gift-meta">
+                    <span>보낸 이 : 
+                        {% if gift.is_anonymous %}
+                            <strong>익명의 누군가</strong>
+                        {% else %}
+                            <strong>{{ gift.sender.username }}</strong>
+                        {% endif %}
+                    </span>
+                    <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
+                </div>
+
+                <div class="gift-msg-box">
+                    {% if gift.message %}
+                        {{ gift.message }}
+                    {% else %}
+                        ( 메시지가 없습니다 )
+                    {% endif %}
+                </div>
+
+                <button class="claim-btn" onclick="claimGift({{ gift.id }})">보관하기</button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-msg">도착한 선물이 없습니다.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function claimGift(giftId) {
+    const csrftoken = '{{ csrf_token }}'; // 장고 템플릿 태그로 토큰 가져오기
+
+    fetch("{% url 'main:claim_gift' %}", {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken 
+        },
+        body: JSON.stringify({ 'gift_id': giftId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.msg);
+            // 💡 보관에 성공하면 새로고침 없이 화면에서 카드만 예쁘게 싹 지워줌
+            const card = document.getElementById(`gift-card-${giftId}`);
+            card.style.transition = "opacity 0.5s";
+            card.style.opacity = "0";
+            setTimeout(() => card.remove(), 500);
+        } else {
+            alert("오류: " + data.msg);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

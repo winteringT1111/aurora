@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* =========================================
+       비주얼 노벨 스타일 플레이 화면 CSS (최종)
+       ========================================= */
+    .play-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        /* 배경 이미지는 톤앤매너를 위해 'cover' 대신 '100% 100%'를 사용하거나 'cover'를 유지합니다 */
+        background: url('{{ node.bg_url|default:"/static/img/default_bg.jpg" }}') no-repeat center center/cover;
+        transition: background-image 0.8s ease-in-out;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    /* 💡 수정됨: 캐릭터 스탠딩 이미지 (이미지 파일 자체를 불러옴) */
+    .character-standing-img {
+        position: absolute;
+        bottom: 0%;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 100vh; /* 화면 비율에 맞춰 높이 조절 */
+
+
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    /* 선택지 영역 */
+    .choice-container {
+        position: absolute;
+        top: 45%;
+        right: 15%; /* 우측에 세로 배치 */
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        z-index: 20;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .btn-choice {
+        background: rgba(247, 246, 236, 0.9);
+        border: 2px solid #cdc6b8;
+        padding: 18px 40px;
+        color: #615848;
+        cursor: pointer;
+        font-size: 1.05rem;
+        border-radius: 8px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 320px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .btn-choice:hover:not(.disabled) {
+        background: #fcfbf6;
+        border-color: #ba9e7a;
+        transform: translateX(-5px);
+    }
+
+    /* 스탯 조건 미달 시 회색 처리 */
+    .btn-choice.disabled {
+        background: rgba(200, 200, 200, 0.7);
+        color: #888;
+        border-color: #bbb;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .condition-tooltip {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        background: #fcfbf6;
+        border: 1px solid #ba9e7a;
+        color: #8c7e6c;
+        font-size: 0.7rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 하단 대화창 */
+    .dialogue-wrapper {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        z-index: 30;
+    }
+
+    .dialogue-box {
+        position: relative;
+        width: 90%;
+        max-width: 1000px;
+        background: linear-gradient(135deg, rgba(247, 246, 236, 0.95), rgba(226, 222, 207, 0.85));
+        border: 2px solid #ba9e7a;
+        border-radius: 0 20px 20px 20px;
+        padding: 40px 40px;
+        color: #4a3f31;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    /* 이름표 박스 */
+    .speaker-name-box {
+        position: absolute;
+        top: -35px;
+        left: -2px;
+        background: #9aa8a1;
+        padding: 8px 35px;
+        border-radius: 10px 10px 0 0;
+        color: #fff;
+        font-size: 1.25rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        border: 2px solid #ba9e7a;
+        border-bottom: none;
+    }
+
+    #typewriter-text {
+        font-size: 1.15rem;
+        line-height: 1.6;
+        min-height: 60px;
+    }
+
+    /* 아이템 획득 팝업 (화면 중앙) */
+.item-reward-popup {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -40%); /* 살짝 아래에 대기 */
+    background: rgba(42, 38, 32, 0.95); /* 진한 다크 브라운 배경 */
+    border: 2px solid #ba9e7a;
+    border-radius: 12px;
+    padding: 30px 40px;
+    text-align: center;
+    color: #fcfbf6;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.mini_img {
+    width: 10px;
+    height: 16px;
+    margin-bottom: 3px;
+}
+
+/* 팝업 등장 애니메이션 클래스 */
+.item-reward-popup.show {
+    opacity: 1;
+    transform: translate(-50%, -50%); /* 스르륵 위로 올라옴 */
+}
+
+.item-reward-popup img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    filter: drop-shadow(0 0 10px rgba(186, 158, 122, 0.6)); /* 은은한 후광 */
+}
+
+.item-reward-popup h3 {
+    margin: 0 0 5px 0;
+    color: #ba9e7a;
+    font-family: "Cinzel Decorative", serif;
+    font-size: 1.4rem;
+}
+
+.item-reward-popup p {
+    margin: 0;
+    font-size: 1rem;
+    color: #cdc6b8;
+}
+</style>
+
+<div class="play-container">
+    
+    {% if node.char_image %}
+        <img src="{{ node.char_image }}" alt="캐릭터" class="character-standing-img" id="character-img" onerror="this.style.display='none';">
+    {% endif %}
+
+    <div class="choice-container" id="choice-container">
+        {% for choice in choices %}
+            <button class="btn-choice" 
+                    id="choice-btn-{{ forloop.counter }}"
+                    data-target="{{ choice.id }}" 
+                    data-cost="{{ choice.stamina_cost }}"
+                    data-req-luck="{{ choice.req_luck|default:0 }}"
+                    onclick="moveNode(this)">
+                ✦  {{ choice.title }} 
+                <span style="font-size: 0.8rem; color:#888;">( <img src="{% static 'img/energy.png' %}" alt="coin" class="mini_img"> {{ choice.stamina_cost }} )</span>
+                
+                {% if choice.req_luck > 0 %}
+                    <span class="condition-tooltip" id="tooltip-{{ forloop.counter }}">조건: 행운 {{ choice.req_luck }} 이상</span>
+                {% endif %}
+            </button>
+        {% endfor %}
+
+        {% if node.return_id %}
+        <button class="btn-choice" onclick="location.href='/play/{{ node.return_id }}/'">
+            ✦  처음으로 돌아간다
+            <span style="font-size: 0.8rem; color:#888;">( <img src="{% static 'img/energy.png' %}" alt="coin" class="mini_img"> 1 )</span>
+        </button>
+    {% endif %}
+    </div>
+
+    <div class="dialogue-wrapper">
+        <div class="dialogue-box">
+            {% if node.speaker != "none" and node.speaker != "system" %}
+                <div class="speaker-name-box">
+                    {% if node.speaker == "npc_1" %}
+                        귀족 부인
+                    {% elif node.speaker == "npc_2" %}
+                        고양이
+                    {% elif node.speaker == "npc_3" %}
+                        알바 석상
+                    {% elif node.speaker == "system" %}
+                        SYSTEM
+                    {% else %}
+                        {{ node.speaker }}
+                    {% endif %}
+                </div>
+            {% endif %}
+            
+            <p id="typewriter-text"></p>
+        </div>
+    </div>
+
+    {% if node.item_name %}
+        <div class="item-reward-popup" id="reward-popup">
+            <img src="{{ node.item_image }}" alt="아이템" onerror="this.style.display='none';">
+            <h3>ITEM ACQUIRED</h3>
+            <p><strong>[{{ node.item_name }}]</strong> 획득!</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // 유저 스탯 데이터 (임시 - views.py에서 템플릿 변수로 넘겨받으세요)
+    let userStamina = 100; 
+    let userLuck = 20; // 👈 테스트: 행운 30 조건 선택지는 회색이 됩니다.
+
+
+    // 대사 타이핑 및 연출
+    const textElement = document.getElementById('typewriter-text');
+    const choiceContainer = document.getElementById('choice-container');
+    const charImg = document.getElementById('character-img');
+    
+    const fullText = `{{ node.content|escapejs }}`.replace(/\\n/g, '<br>'); 
+    
+    let index = 0;
+    let isTyping = false;
+    let typeInterval;
+
+    function typeWriter() {
+        isTyping = true;
+        if (index < fullText.length) {
+            if (fullText.charAt(index) === '<') {
+                let tagEnd = fullText.indexOf('>', index);
+                if (tagEnd !== -1) {
+                    textElement.innerHTML += fullText.substring(index, tagEnd + 1);
+                    index = tagEnd + 1;
+                }
+            } else {
+                textElement.innerHTML += fullText.charAt(index);
+                index++;
+            }
+            typeInterval = setTimeout(typeWriter, 50); // 속도 조절
+        } else {
+            finishTyping();
+        }
+    }
+
+    // 대사 출력이 끝났을 때 실행되는 함수
+function finishTyping() {
+    isTyping = false;
+    textElement.innerHTML = fullText; 
+    
+    // 💡 1. 팝업창 띄우기 (아이템 데이터가 있을 경우)
+    const rewardPopup = document.getElementById('reward-popup');
+    if (rewardPopup) {
+        rewardPopup.classList.add('show');
+        
+        // 2초 뒤에 팝업 사라짐
+        setTimeout(() => {
+            rewardPopup.classList.remove('show');
+        }, 2000);
+    }
+
+    // 💡 2. 선택지 띄우기 (아이템 창이 뜰 때는 잠깐 기다렸다가 띄우면 더 자연스럽습니다)
+    const delay = rewardPopup ? 2000 : 0; // 아이템이 있으면 2초(팝업 지속시간) 뒤에 선택지 등장
+    setTimeout(() => {
+        choiceContainer.style.opacity = "1";
+        choiceContainer.style.pointerEvents = "auto";
+        checkChoiceConditions();
+    }, delay);
+}
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.choice-container')) {
+            if (isTyping) {
+                clearTimeout(typeInterval);
+                finishTyping();
+            }
+        }
+    });
+
+    // 시작 연출 (캐릭터 등장)
+    window.onload = () => {
+        if (charImg) {
+            charImg.style.opacity = "1";
+        }
+        setTimeout(typeWriter, 500); 
+    };
+
+
+    // 선택지 조건 체크 및 클릭 이벤트
+    function checkChoiceConditions() {
+        const choiceBtns = document.querySelectorAll('.btn-choice');
+        
+        choiceBtns.forEach(btn => {
+            const reqLuck = parseInt(btn.getAttribute('data-req-luck'));
+            
+            if (reqLuck > 0 && userLuck < reqLuck) {
+                btn.classList.add('disabled');
+                
+                const tooltip = btn.querySelector('.condition-tooltip');
+                if (tooltip) {
+                    tooltip.innerHTML = `조건 미달 (행운 ${reqLuck} 필요)`;
+                    tooltip.style.color = "#ff6b6b"; 
+                    tooltip.style.borderColor = "#ff6b6b";
+                }
+            }
+        });
+    }
+
+    // 노드 이동
+    function moveNode(btnElement) {
+        if (btnElement.classList.contains('disabled')) return; 
+
+        const nextId = btnElement.getAttribute('data-target');
+        const cost = parseInt(btnElement.getAttribute('data-cost'));
+        
+        if (userStamina >= cost) {
+            userStamina -= cost; 
+            // 실제 서버에도 스태미나 감소를 기록해야 합니다.
+            location.href = `/play/${nextId}/`; 
+        } else {
+            alert("활력이 부족합니다!");
+        }
+    }
+</script>
+{% endblock %}

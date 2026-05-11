@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/members.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "UI.html" %}
+
+    <div class="members-container">
+        <!-- 상단 헤더 및 필터 -->
+        <div class="members-header">
+            
+            <h1 class="page-title">EXPEDITION MEMBER</h1>
+            
+            <!-- 💡 출신지 필터링 버튼 -->
+            <div class="filter-group">
+                <button class="filter-btn active" data-filter="all">전체</button>
+                <button class="filter-btn" data-filter="발테리온 왕국">발테리온 왕국</button>
+                <button class="filter-btn" data-filter="아르켈룸 왕국">아르켈룸 왕국</button>
+                <button class="filter-btn" data-filter="세라피온 신성국">세라피온 신성국</button>
+                <button class="filter-btn" data-filter="살하라 유목지">살하라 유목지</button>
+                <button class="filter-btn" data-filter="노르드바인 대공령">노르드바인 대공령</button>
+                <button class="filter-btn" data-filter="탈라시아 해양 연합">탈라시아 해양 연합</button>
+                <button class="filter-btn" data-filter="카르둠">카르둠</button>
+            </div>
+        </div>
+
+        <!-- 캐릭터 카드 그리드 -->
+        <div class="members-grid">
+            <!-- 💡 Django 템플릿 반복문 -->
+            {% for character in characters %}
+            <!-- data-origin 속성에 출신지를 넣어 JS 필터링에 사용합니다 -->
+            <div class="member-card" data-origin="{{ character.origin }}">
+                            <!-- 1. 밑에 깔리는 캐릭터 이미지 (먼저 작성) -->
+                <a href="/member/{{character.name_en}}"><img src="{% get_static_prefix %}img/member/흉상/{{ character.name_en }}.png" alt="{{ character.name_kr }}" class="member-img"> </a>
+                
+                <!-- 2. 그 위에 덮어씌울 프레임 이미지 (나중에 작성) -->
+                <img src="{% static 'img/member.png' %}" class="card-frame">
+
+                <!-- 하단 정보 영역 (그라데이션 + 텍스트) -->
+                <div class="member-info">
+                    <!-- 요청하신 타이틀 (캐치프레이즈) -->
+                     <div class="diamond-deco">⯌ ⯌ ⯌</div>
+                    <div class="member-title">【 {{ character.catchphrase }} 】</div>
+                    <!-- 이름 (하단 배치) -->
+                    <div class="member-name">{{ character.name_kr }}</div>
+                </div>
+            </div>
+            {% endfor %}
+            
+            
+
+
+        </div>
+    </div>
+
+    <script src="{% static 'js/members_scripts.js' %}"></script>
+
+{% endblock %}

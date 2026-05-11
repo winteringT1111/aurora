@@ -1,0 +1,31 @@
+{% load static %}
+
+<div id="tab-inventory" class="tab-content">
+    <div class="inventory-section">
+        <div class="inv-header">
+            <h2 class="inv-title">INVENTORY</h2>
+            <div class="inv-currency">
+                <span>{{char.gold}} G</span>
+                <span>{{char.energy}} SP</span>
+            </div>
+        </div>
+        
+        <div class="inv-grid">
+            {% for inven_item in items %}
+                <div class="inv-slot" onclick="openItemModal('{{ inven_item.item.id }}', '{{ inven_item.item.name }}', '{{ inven_item.item.category|default:'미분류' }}', '{{ inven_item.item.description|escapejs }}', '{% static 'img/도트/' %}{{ inven_item.item.name }}.png', {{ inven_item.quantity }})">
+                    
+                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name }}.png" alt="{{ inven_item.item.name }}" class="inv-item-img">
+                    
+                    <span class="inv-qty">x{{ inven_item.quantity }}</span>
+                    
+                </div>
+            {% empty %}
+                <div style="grid-column: 1 / -1; text-align: center; color: #8c7e6c; padding: 20px;">
+                    보유한 아이템이 없습니다.
+                </div>
+            {% endfor %}
+            
+        </div>
+    </div>
+
+</div>

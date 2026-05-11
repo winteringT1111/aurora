@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+  
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+{% endblock %}
+
+{% block content %}
+
+
+
+{% include "UI.html" %}
+
+    <div class="floating-login">
+        <form method="post" action="{% url 'users:users_login' %}">
+        {% csrf_token %}
+            <div class="login-input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="username" placeholder="ID" class="mini-input" required>
+            </div>
+            
+            <div class="login-input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" placeholder="PASSWORD" class="mini-input" required>
+            </div>
+            
+            <div class="login-options">
+                <a href="/signup">회원가입</a>
+            </div>
+            
+            <button type="submit" class="login-submit">LOGIN</button>
+        </form>
+    </div>
+
+
+    <main class="content">
+
+        <div class="logo"><img src="{% static 'img/logo.png' %}" alt="logo"></div>
+        
+
+<div class="main-dashboard">
+    
+    <div class="left-panel">
+
+        <div class="panel-inner">
+            <div class="crown-logo-area">
+
+                <img src="{% static 'img/crown.png' %}" alt="왕관" class="crown-img">
+            </div>
+            
+            <div class="notice-list">
+                <div class="notice-item">
+                    <span class="star-icon">✦</span> <span class="notice-text">용사 기여도 변동 후 순위 공개 예정</span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="right-panel-wrapper">
+        
+        <div class="weather-bar">
+            <span class="weather-desc">구름을 거두고 햇빛이 내리쬐고 있다.</span>
+            <span class="weather-temp">20℃</span>
+            <span class="weather-loc">Valterion</span><span class="weather-de">✦</span>
+        </div>
+
+        <div class="dashboard-middle">
+            
+        <div class="schedule-panel">
+            <div class="panel-inner">
+                <div class="cal-nav">
+                    <button id="cal-prev" class="cal-nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h3 id="cal-month-year" class="cinzel-decorative-bold panel-title">APRIL 2026</h3>
+                    <button id="cal-next" class="cal-nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                
+                <div class="calendar-interactive">
+                    <div class="cal-weekdays">
+                        <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
+                    </div>
+                    <div id="cal-grid" class="cal-grid">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-panel event-detail-panel" id="event-detail-panel" style="display: none;">
+            <div class="panel-inner">
+                <h4 class="cinzel-decorative-bold">EVENT DETAIL</h4>
+                <div class="event-detail-content">
+                    <h5 id="detail-title"></h5>
+                    <p id="detail-date" class="detail-date"></p>
+                    <p id="detail-desc"></p>
+                </div>
+            </div>
+        </div>
+
+
+
+            <div class="info-stack">
+                <div class="map-panel">
+                    <div class="panel-inner">
+                        <div class="map-text">
+                            <h4>✦ 현 거주 지역</h4>
+                            <p>[발테리온 - 수도] 지역에 오신 것을 환영합니다.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="quest-panel">
+                    <div class="panel-inner">
+                        <p class="story-desc">어째 사람들은 우리를<br>환영하고 있지 않다. 원정대의 의의는 대체...</p>
+                        
+                        <div class="quest-bottom">
+                            <span class="ap-cost">진행 시 활력 소모</span>
+                            <a href="/play/1" class="quest-action-btn">Chapter 01-1 조사</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="specialties-panel">
+            <div class="panel-inner">
+                <div class="specialties-header">
+                    <span>✦  발테리온 특산물  ✦</span>
+                </div>
+                <div class="slots-container">
+                    <div class="item-slot"><img src="{% static 'img/도트/기념 메달.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/가문비 나무.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/빵.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/각성의 결정.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/밀랍.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/은괴.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/우유.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/방랑자의 지도.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/발테리온식 에일.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/벌꿀술.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/망각 버섯.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/위스키.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/맥주.png' %}" alt="밀"></div>
+                    <div class="item-slot"><img src="{% static 'img/도트/모래시계.png' %}" alt="밀"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+
+    </main>
+
+
+
+<script src="{% static 'js/calender.js' %}"></script>
+{% endblock %}

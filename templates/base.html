@@ -1,0 +1,55 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8">
+        <title>Aurora Foederis</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+     
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gideon+Roman&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Hachi+Maru+Pop&family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        <link rel="stylesheet" href="{% static 'css/snow_reverse.css' %}">
+        
+        {% block head %}
+	    {% endblock %}
+    </head>
+    <body>
+
+        
+<div class="background"></div> <!-- 흐림 효과를 위한 배경 -->
+
+
+        <nav class="sidebar">
+                <ul class="nav-links">
+                    <li><a href="/"><span class="icon"><i class="fa-regular fa-building"></i></span><span class="text">HOME</span></a></li>
+                    <li><a href="/store"><span class="icon"><i class="fa-regular fa-hard-drive"></i></span><span class="text">MARKET</span></a></li>
+                    <li><a href="/member"><span class="icon"><i class="fa-regular fa-address-card"></i></span><span class="text">MEMBER</span></a></li>
+                    <li><a href="/supply"><span class="icon"><i class="fa-regular fa-gem"></i></span><span class="text">RATION</span></a></li>
+                    <li><a href="/recipe"><span class="icon"><i class="fa-regular fa-chess-rook"></i></span><span class="text">ATELIER</span></a></li>
+                    <li><a href="/play/1"><span class="icon"><i class="fa-regular fa-compass"></i></span><span class="text">SEARCH</span></a></li>
+                    <li><a href="/giftbox"><span class="icon"><i class="fa-regular fa-envelope"></i></span><span class="text">GIFT</span></a></li>
+                </ul>
+            </nav>
+
+            
+        {% block content %}
+        {% endblock %}
+        <script src="{% static 'js/world.js' %}"></script>
+
+    </body>
+</html>

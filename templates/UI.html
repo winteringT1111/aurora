@@ -1,0 +1,37 @@
+{% load static %}
+
+<header class="top-bar">
+    <div class="user-profile-widget">
+        
+        <div class="profile-info-area">
+            <div class="name-banner">
+                <span class="char-name">{{ my_char.name_en|upper }}</span> ✦
+            </div>
+            
+            <div class="stats-row">
+                <div class="stat-pill">
+                    <span class="stat-icon"><img src="{% static 'img/coin.png' %}" alt="coin" class="mini_img"></span> 
+                    {{ my_char.gold }} G
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-icon"><img src="{% static 'img/energy.png' %}" alt="energy" class="mini_img"></span> 
+                    {{ my_char.energy }} SP
+                </div>
+                <div class="action-icons">
+                    <a href="/giftbox">
+                        <button class="icon-btn"><i class="fa-regular fa-envelope"></i></button>
+                    </a>
+                    
+                    <a href="/member/{{ my_char.name_en }}">
+                        <button class="icon-btn"><i class="fa-regular fa-circle-user"></i></button>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-pic-box">
+            <img src="{% static 'img/member/두상/' %}{{ my_char.name_en }}.png" alt="{{ my_char.name_en }}" class="profile-pic">
+        </div>
+        
+    </div>
+</header>

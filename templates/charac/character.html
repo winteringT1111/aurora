@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <title>캐릭터 상세 프로필</title>
+    
+    <!-- 고급스러운 영문 폰트 적용 -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- 💡 CSS 파일 연결 (파일명이 다르면 href 안의 이름을 수정하세요) -->
+     
+    <link rel="stylesheet" href="{% static 'css/character_style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div id="itemModal" class="custom-modal">
+    <div class="modal-box">
+        <span class="modal-close" onclick="closeModal('itemModal')">&times;</span>
+        <div class="modal-img-wrap">
+            <img id="modalItemImg" src="" alt="아이템 이미지">
+        </div>
+        <h2 id="modalItemName" class="modal-title">아이템 이름</h2>
+        <span id="modalItemTag" class="modal-tag">카테고리</span>
+        <p id="modalItemDesc" class="modal-desc">아이템 설명이 여기에 들어갑니다.</p>
+        
+        <input type="hidden" id="modalItemId">
+
+        {% if is_own_profile %}
+        
+            <button class="modal-btn" onclick="openTransferModal()">양도</button>
+        {% endif %}
+    </div>
+</div>
+
+{% if is_own_profile %}
+<div id="transferModal" class="custom-modal">
+    <div class="modal-box transfer-box">
+        <span class="modal-close" onclick="closeModal('transferModal')">&times;</span>
+        <h2 class="modal-title" style="margin-bottom: 10px;">아이템 양도</h2>
+        <hr class="modal-divider">
+        
+        <p class="modal-desc" style="margin: 20px 0;"><strong id="transferItemName" style="color:#e2d5c3;">아이템 이름</strong> 아이템을 양도합니다.</p>
+        
+        <div class="form-group">
+            <label>받는 사람:</label>
+            <select id="transferRecipient" class="modal-input">
+                <option value="">-- 캐릭터 선택 --</option>
+                {% for recipient in recipient_list %}
+                    <option value="{{ recipient.id }}">{{ recipient.name_kr }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label>메시지:</label>
+            <textarea id="transferMsg" class="modal-input" rows="3" style="width: 100%; resize: none;" placeholder="전달할 말을 적어주세요."></textarea>
+        </div>
+        
+        <div class="form-group" style="margin-top: 15px;">
+            <label>수량:</label>
+            <input type="number" id="transferQty" class="modal-input" value="1" min="1">
+        </div>
+        
+        <hr class="modal-divider" style="margin-top: 30px;">
+        <button class="modal-btn" onclick="submitTransfer()">양도하기</button>
+    </div>
+</div>
+{% endif %}
+
+
+
+
+
+
+<div class="character-container">
+    <!-- 좌측: 전신 일러스트 & 대사 -->
+    <div class="left-panel">
+        <div class="char-image-wrapper">
+            <!-- 💡 캐릭터 전신 이미지를 여기에 넣으세요 -->
+            <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img">
+        </div>
+        
+        <!-- 하단 검정 그라데이션 & 대사 (스크롤 시 고정) -->
+        <div class="quote-overlay">
+            <img src="{% static 'img/quote.png' %}" class="quote-img">
+            <p class="quote-text">{{char.quote}}</p>
+        </div>
+    </div>
+
+    <!-- 우측: 정보 패널 (페이드인 애니메이션) -->
+    <div class="right-panel">
+        <div class="info-header">
+            <!-- 맨 위 가운데 정렬될 타이틀 -->
+            <div class="title-tag">&lt; {{char.catchphrase}} &gt;</div>
+            
+            <!-- 💡 다이아몬드 이미지와 이름 텍스트를 나란히 배치하기 위한 박스 -->
+            <div class="name-block">
+                <!-- 좌측 다이아몬드 이미지 -->
+                <div class="portrait-box">
+                    <img src="{% static 'img/race/dragon.png' %}" alt="portrait" class="diamond-img">
+                </div>
+                
+                <!-- 우측 이름 텍스트 -->
+                <div class="name-text-box">
+                    <h1 class="eng-name">{{char.name_en}}</h1>
+                    <div class="kr-name">{{char.name_kr}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="basic-stats">
+            <div class="stat-item"><span class="stat-label">AREA</span>{{char.origin}}</div>
+            <div class="stat-item"><span class="stat-label">RACE</span>{{char.race}}</div>
+            <div class="stat-item"><span class="stat-label">AGE</span>{{char.age}}</div>
+            <div class="stat-item"><span class="stat-label">SEX</span>{{char.gender}}</div>
+            <div class="stat-item"><span class="stat-label">HEIGHT</span>{{char.height}}cm</div>
+            <div class="stat-item"><span class="stat-label">WEIGHT</span>{{char.weight}}kg</div>
+        </div>
+
+        <!-- 아이콘 탭 영역 -->
+        <!-- 아이콘 탭 영역 -->
+        <div class="tab-menu">
+            <!-- 💡 onclick 이벤트로 JS 함수를 호출합니다 -->
+            <span class="tab-icon active" onclick="switchTab('tab-profile', this)"><img src="{% static 'img/profile_icon1.png' %}" class="profile_icon"></span>
+            <span class="tab-icon" onclick="switchTab('tab-stats', this)"><img src="{% static 'img/profile_icon2.png' %}" class="profile_icon"></span>
+            <span class="tab-icon" onclick="switchTab('tab-inventory', this)"><img src="{% static 'img/profile_icon3.png' %}" class="profile_icon"></span>
+        </div>
+
+        <!-- 💡 탭 콘텐츠가 표시될 전체 컨테이너 -->
+        <div class="tab-content-container">
+            
+            <!-- 1번 탭: 프로필 (기본으로 보여짐 - active 클래스) -->
+            <div id="tab-profile" class="tab-content active">
+    
+                <details class="info-accordion" open>
+                    <summary>Personality</summary>
+                    <div class="accordion-content">
+                        <div class="keyword-box">
+                            {% if char.keyword1 %}<span class="keyword">{{ char.keyword1 }}</span>{% endif %}
+                            {% if char.keyword2 %}<span class="keyword">{{ char.keyword2 }}</span>{% endif %}
+                            {% if char.keyword3 %}<span class="keyword">{{ char.keyword3 }}</span>{% endif %}
+                        </div>
+                        <div class="text-content">
+                            {{ char.personality|linebreaksbr|safe }}
+                        </div>
+                    </div>
+                </details>
+
+                {% if char.appearance %}
+                <details class="info-accordion">
+                    <summary>Appearance</summary>
+                    <div class="accordion-content">
+                        <div class="text-content">
+                            
+                                {{ char.appearance|linebreaksbr|safe }}
+
+                        </div>
+                    </div>
+                </details>
+                {% endif %}
+
+                <details class="info-accordion">
+                    <summary>Other Info</summary>
+                    <div class="accordion-content">
+                        <div class="text-content">
+                            {% if char.other_info %}
+                                {{ char.other_info|linebreaksbr|safe }}
+                            {% else %}
+                                추가 정보가 존재하지 않습니다.
+                            {% endif %}
+                        </div>
+                    </div>
+                </details>
+
+            </div>
+
+            {% include "charac/stats.html" %}
+
+            {% include "charac/inventory.html" %}
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // 💡 탭을 전환하는 자바스크립트 함수
+    function switchTab(targetTabId, clickedIcon) {
+        // 1. 모든 탭 아이콘의 불을 끕니다 (active 클래스 제거)
+        const allIcons = document.querySelectorAll('.tab-icon');
+        allIcons.forEach(icon => {
+            icon.classList.remove('active');
+        });
+
+        // 2. 방금 클릭한 아이콘에만 불을 켭니다 (active 클래스 추가)
+        clickedIcon.classList.add('active');
+
+        // 3. 모든 탭 콘텐츠 영역을 숨깁니다
+        const allContents = document.querySelectorAll('.tab-content');
+        allContents.forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // 4. 클릭한 탭에 연결된 콘텐츠 영역만 보여줍니다
+        const targetContent = document.getElementById(targetTabId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+    }
+
+    // ==========================================
+    // 인벤토리 팝업 관련 자바스크립트
+    // ==========================================
+
+    // 1. 아이템 상세 모달 열기
+    function openItemModal(id,name, tag, desc, imgSrc, qty) {
+        // 데이터 채우기
+
+        // 💡 [핵심] 방금 만든 숨겨진 주머니(input)에 클릭한 아이템의 id를 몰래 넣습니다.
+    const idInput = document.getElementById('modalItemId');
+    if (idInput) {
+        idInput.value = id; 
+    }
+    
+        document.getElementById('modalItemName').textContent = name;
+        document.getElementById('modalItemTag').textContent = tag;
+        document.getElementById('modalItemDesc').textContent = desc;
+        document.getElementById('modalItemImg').src = imgSrc;
+        
+        // 양도 창을 위해 이름 임시 저장
+        document.getElementById('transferItemName').textContent = name;
+        document.getElementById('transferQty').max = qty; // 최대 수량 지정
+        document.getElementById('transferQty').value = 1;
+
+        // 모달 띄우기
+        document.getElementById('itemModal').classList.add('show');
+    }
+
+    // 2. 모달 닫기 공통 함수
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+    }
+
+    // 3. 아이템 상세 창에서 '양도' 버튼 눌렀을 때
+    // 3. 아이템 상세 창에서 '양도' 버튼 눌렀을 때
+    function openTransferModal() {
+        closeModal('itemModal'); // 상세 창 닫기
+        
+        const transferModal = document.getElementById('transferModal');
+        
+        // 💡 핵심: 깜빡임 방지 클래스를 먼저 붙인 뒤에 창을 엽니다.
+        transferModal.classList.add('no-bg-anim');
+        transferModal.classList.add('show');
+        
+       
+    }
+
+    
+// 4. 최종 '양도하기' 버튼 눌렀을 때 (fetch API 전송)
+function submitTransfer() {
+    const recipientId = document.getElementById('transferRecipient').value;
+    const qty = document.getElementById('transferQty').value;
+    const itemId = document.getElementById('modalItemId').value;
+    const message = document.getElementById('transferMsg').value;
+
+    if(!recipientId) {
+        alert("받는 사람을 선택해 주세요.");
+        return;
+    }
+
+    // 💡 복잡한 getCookie 함수 대신, 장고 템플릿 문법으로 바로 토큰을 가져옵니다!
+    const csrftoken = '{{ csrf_token }}';
+
+    fetch('{% url "member:transfer_item" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+            'item_id': itemId,
+            'recipient_id': recipientId,
+            'quantity': qty,
+            'message': message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert(data.msg);
+            location.reload(); // 성공 시 새로고침
+        } else {
+            alert("양도 실패: " + data.msg);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+
+    // 💡 꿀팁: 모달 바깥의 어두운 배경을 클릭해도 닫히게 만들기
+    window.onclick = function(event) {
+        const itemModal = document.getElementById('itemModal');
+        const transferModal = document.getElementById('transferModal');
+        if (event.target == itemModal) closeModal('itemModal');
+        if (event.target == transferModal) closeModal('transferModal');
+    }
+</script>
+
+{% endblock %}

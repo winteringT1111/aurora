@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/potion.css' %}">
+{% endblock %}
+
+{% block content %}
+{% include "UI.html" %}
+<div class="potion-container">
+    <div class="kettle_area">
+        <div class="crafting-slots-wrapper">
+            <div class="crafting-slots">
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+                <div class="slot"></div>
+            </div>
+            <p class="craft-prompt-text">해당 재료로 아이템을<br>조합하시겠습니까?</p>
+            <div class="kettle-buttons">
+                <button id="reset-btn" class="btn-secondary">초기화</button>
+                <button id="craft-btn" class="btn-primary">조합하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="inventory-area">
+        <div class="inventory-header">INVENTORY</div>
+        <div class="inventory-grid">
+            {% for inven_item in inventory_items %}
+                <div class="item" data-name="{{ inven_item.item.name }}" data-count="{{ inven_item.quantity }}">
+                    
+                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name }}.png" alt="{{ inven_item.item.name }}" class="item-icon">
+                    
+                    <span class="item-count">x{{ inven_item.quantity }}</span>
+                    <div class="item-tooltip">
+                        <p class="item-name">{{ inven_item.item.name }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="empty-inventory">조합할 재료가 없습니다.</p>
+            {% endfor %}
+        </div>
+        <div class="inventory-footer">
+            <button id="recipe-book-btn">RECIPE BOOK</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade custom-modal" id="resultModal" data-backdrop="static" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content result-modal-content">
+            <h5 class="modal-title" id="resultModalTitle"></h5>
+            <div class="result-image-container">
+                <img id="resultModalImage" src="" alt="조합 결과">
+            </div>
+            <p id="resultModalMessage"></p>
+            <button type="button" class="close-result-btn btn-primary">확인</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade custom-modal" id="recipeBookModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content recipe-book-content">
+            <div class="recipe-book-header">
+                <h4 class="recipe-title">RECIPE BOOK</h4>
+                <button type="button" class="modal-close-icon" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="recipe-book">
+                </div>
+            <div class="book-navigation">
+                <button id="prev-page-btn" class="nav-btn">&lt; 이전</button>
+                <span id="page-number-display"></span>
+                <button id="next-page-btn" class="nav-btn">다음 &gt;</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<template id="recipe-page-template">
+    <div class="recipe-page">
+        {% for item in all_recipes %}
+            <div class="recipe-entry">
+                <div class="result-item">
+                    <img src="{% static 'img/도트/' %}{{ item.recipe.itemName }}.png" 
+                         class="recipe-icon {% if not item.recipe.discovered %}undiscovered{% endif %}"
+                         alt="{{ item.recipe.itemName }}">
+                    <h5 class="recipe-item-name">{{ item.recipe.itemName }}</h5>
+                    {% if not item.recipe.discovered %}
+                        <small class="discoverer-info text-muted">(미발견)</small>
+                    {% else %}
+                        <small class="discoverer-info">발견자: {{ item.discoverer_first_name }}</small>
+                    {% endif %}
+                </div>
+                <div class="equals-sign">=</div>
+                <div class="ingredient-list">
+                    {% for ingredient_name in item.ingredients %}
+                        <div class="ingredient-item">
+                            {% if item.recipe.discovered %}
+                                <img src="{% static 'img/도트/' %}{{ ingredient_name }}.png"
+                                     class="recipe-icon-small" alt="{{ ingredient_name }}">
+                            {% else %}
+                                <div class="recipe-icon-small placeholder-box">?</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</template>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 요소 가져오기
+    const slots = document.querySelectorAll('.crafting-slots .slot');
+    const inventoryItems = document.querySelectorAll('.inventory-grid .item');
+    const craftBtn = document.getElementById('craft-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const resultModal = new bootstrap.Modal(document.getElementById('resultModal'));
+
+    let selected = []; // { name: '...', element: ... } 객체 저장
+
+    inventoryItems.forEach(itemEl => {
+        itemEl.addEventListener('click', () => {
+            const itemName = itemEl.dataset.name;
+
+            // ✅ CHECK FOR DUPLICATES: Check if the item's name is already in the selected array
+            if (selected.some(item => item.name === itemName)) {
+                alert("이미 선택한 아이템입니다.");
+                return; // Stop the function
+            }
+
+            if (selected.length >= 4) {
+                alert("최대 4개의 재료만 선택할 수 있습니다.");
+                return;
+            }
+
+            let count = parseInt(itemEl.dataset.count, 10);
+            if (count <= 0) return;
+
+            // UI Update: Decrease inventory count
+            count--;
+            itemEl.dataset.count = count;
+            itemEl.querySelector('.item-count').textContent = `x${count}`;
+            if (count === 0) itemEl.classList.add('disabled');
+
+            // UI Update: Add image to the crafting slot
+            const nextSlot = slots[selected.length];
+            nextSlot.innerHTML = `<img src="${itemEl.querySelector('img').src}" alt="${itemName}">`;
+            selected.push({ name: itemName, element: itemEl });
+        });
+    });
+
+    // 3. 초기화 버튼
+    resetBtn.addEventListener('click', () => {
+        selected.forEach(itemInfo => {
+            const itemEl = itemInfo.element;
+            const count = parseInt(itemEl.dataset.count, 10) + 1;
+            itemEl.dataset.count = count;
+            itemEl.querySelector('.item-count').textContent = `x${count}`;
+            itemEl.classList.remove('disabled');
+        });
+        slots.forEach(slot => slot.innerHTML = '');
+        selected = [];
+    });
+
+    // 4. 조합하기 버튼: 서버에 데이터 전송 (AJAX)
+    craftBtn.addEventListener('click', () => {
+        if (selected.length < 2) {
+            alert("최소 2개 이상의 재료를 선택해야 합니다.");
+            return;
+        }
+
+        const itemNames = selected.map(item => item.name);
+
+        fetch("{% url 'main:combine' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify({ selected_items: itemNames }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw new Error(err.error) });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 결과 모달 내용 채우기
+            document.getElementById('resultModalTitle').textContent = data.result === 'success' ? '조합 성공!' : '조합 실패';
+            document.getElementById('resultModalImage').src = `{% static 'img/도트/' %}${data.image}`;
+            document.getElementById('resultModalMessage').textContent = data.message;
+            resultModal.show();
+        })
+        .catch(error => {
+            alert(error.message); // 서버에서 보낸 에러 메시지 표시
+        });
+    });
+
+    // 5. 결과 모달 닫기 버튼
+    document.querySelector('.close-result-btn').addEventListener('click', () => {
+        location.reload(); // 페이지를 새로고침하여 인벤토리 변경사항 반영
+    });
+// --- ✨ 레시피 북 로직 시작 ✨ ---
+    const recipeBookBtn = document.getElementById('recipe-book-btn');
+    const recipeBookModal = new bootstrap.Modal(document.getElementById('recipeBookModal'));
+    const bookContainer = document.querySelector('.recipe-book');
+    const prevPageBtn = document.getElementById('prev-page-btn');
+    const nextPageBtn = document.getElementById('next-page-btn');
+    const pageNumDisplay = document.getElementById('page-number-display');
+
+    // 1. 템플릿에서 레시피 목록 가져오기
+    const recipeTemplate = document.getElementById('recipe-page-template');
+    const allRecipeEntries = Array.from(recipeTemplate.content.querySelector('.recipe-page').children);
+    
+    const itemsPerPage = 6; // 한 페이지에 보여줄 레시피 수
+    const totalPages = Math.ceil(allRecipeEntries.length / itemsPerPage);
+    let currentPage = 0;
+
+    // 2. 페이지를 표시하는 함수
+    function showPage(pageIndex) {
+        bookContainer.innerHTML = ''; // 기존 페이지 내용 삭제
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'recipe-page active';
+
+        const start = pageIndex * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageItems = allRecipeEntries.slice(start, end);
+        
+        pageItems.forEach(item => {
+            pageDiv.appendChild(item.cloneNode(true));
+        });
+        
+        bookContainer.appendChild(pageDiv);
+        
+        // 네비게이션 업데이트
+        pageNumDisplay.textContent = `${pageIndex + 1} / ${totalPages}`;
+        prevPageBtn.disabled = pageIndex === 0;
+        nextPageBtn.disabled = pageIndex >= totalPages - 1;
+    }
+
+    // 3. 이벤트 리스너 연결
+    recipeBookBtn.addEventListener('click', () => {
+        currentPage = 0;
+        showPage(currentPage);
+        recipeBookModal.show();
+    });
+
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 0) {
+            currentPage--;
+            showPage(currentPage);
+        }
+    });
+
+    nextPageBtn.addEventListener('click', () => {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            showPage(currentPage);
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const kettle = document.querySelector('.kettle_area');
+    const inventory = document.querySelector('.inventory-area');
+
+    // 순차적으로 등장
+    setTimeout(() => kettle.classList.add('active'), 0);
+    setTimeout(() => inventory.classList.add('active'), 30);
+});
+</script>
+
+{% endblock %}
+

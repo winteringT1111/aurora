@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/store_style.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="store-container">
+    
+    <!-- =========================================
+         좌측: 선택된 아이템 상세 정보 패널
+         ========================================= -->
+    <div class="store-left">
+        <div id="emptyDetail" class="empty-detail">
+            <p>우측에서 아이템을 선택해주세요.</p>
+        </div>
+
+        <div id="itemDetailCard" class="item-detail-card" style="display: none;">
+            <div class="detail-img-box">
+                <img id="detailImg" src="" alt="Item">
+            </div>
+            <h2 id="detailName" class="detail-name">아이템명</h2>
+            <p id="detailDesc" class="detail-desc">아이템 설명이 여기에 표시됩니다.</p>
+            
+            <div class="detail-bottom">
+                <div class="detail-price">
+                    <span style="font-size: 1.2rem; margin-right: 5px;"></span>
+                    <span id="detailPrice">100</span> G
+                </div>
+                <div class="detail-actions">
+                    <button class="action-btn" onclick="openModal('buyModal')" title="구매"><img src="{% static 'img/카트' %}.png" class="icon1"></button>
+                    <button class="action-btn" onclick="openModal('giftModal')" title="선물"><img src="{% static 'img/선물' %}.png" class="icon2"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         우측: 상점 목록 패널
+         ========================================= -->
+    <div class="store-right">
+        <div class="store-top">
+            <h1 class="store-title"><span style="font-size: 2.2rem; vertical-align: middle;">⯌</span> STORE</h1>
+            <!-- 💡 유저의 실제 골드 반영 -->
+            <div class="current-gold">보유 자금 | {{ user_gold }} G</div>
+        </div>
+
+        <!-- 💡 8가지 카테고리 탭 메뉴 -->
+        <!-- 💡 카테고리 탭 (한국어로 변경) -->
+        <div class="store-tabs">
+            <button class="store-tab active" data-filter="전체보기">전체보기</button>
+            <button class="store-tab" data-filter="광물">광물</button>
+            <button class="store-tab" data-filter="소지품">소지품</button>
+            <button class="store-tab" data-filter="옷">옷</button>
+            <button class="store-tab" data-filter="유기재료">유기재료</button>
+            <button class="store-tab" data-filter="음식">음식</button>
+            <button class="store-tab" data-filter="일반재료">일반재료</button>
+            <button class="store-tab" data-filter="장신구">장신구</button>
+            <button class="store-tab" data-filter="정수">정수</button>
+        </div>
+
+        <!-- 💡 DB에서 불러온 아이템 그리드 렌더링 -->
+        <div class="store-grid" id="storeGrid">
+            {% for item in items_data %}
+            <!-- data-category 속성에 카테고리 영문명(예: FOOD, MINERAL)을 넣어 필터링에 사용 -->
+            <div class="store-item" data-category="{{ item.category }}" 
+                onclick="selectItem('{{ item.id }}', '{{ item.name }}', '{{ item.price }}', '{{ item.desc|escapejs }}', '{% static 'img/도트/' %}{{ item.name }}.png')">
+                
+                <!-- 💡 아이템 이미지 영역 (고급스러운 테두리) -->
+                <div class="item-icon-wrapper">
+                    <img src="{% static 'img/도트/' %}{{ item.name }}.png" alt="{{ item.name }}" class="item-icon">
+                </div>
+                
+                <!-- 💡 아이템 정보 영역 -->
+                <div class="item-info">
+                    <!-- 새로 추가된 카테고리 표시 -->
+                    <div class="item-category">〈 {{ item.category }} 〉</div>
+                    
+                    <div class="item-name">{{ item.name }}</div>
+                    <div class="item-price">{{ item.price }} G</div>
+                </div>
+
+            </div>
+            {% empty %}
+            <p style="text-align: center; width: 100%; color: #8c7e6c; margin-top: 50px;">현재 상점에 진열된 아이템이 없습니다.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- =========================================
+     팝업창 (Modals)
+     ========================================= -->
+
+<!-- 1. 구매 팝업 -->
+<div id="buyModal" class="custom-modal">
+    <div class="modal-box">
+        <span class="modal-close" onclick="closeModal('buyModal')">&times;</span>
+        
+        <h2 id="buyItemName" class="modal-title" style="margin-top: 10px;">아이템명</h2>
+        
+        <!-- 💡 가격과 수량을 세로로 깔끔하게 배치하는 컨테이너 -->
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 15px; margin: 20px 0;">
+            
+            <!-- 가격 태그 -->
+            <div class="modal-tag" id="buyItemPrice">100 G</div>
+            
+            <!-- 수량 조절기 -->
+            <div class="qty-wrapper" style="margin: 0;">
+                <button class="qty-btn" onclick="changeQty('buyQty', -1)">-</button>
+                <input type="number" id="buyQty" class="qty-input" value="1" readonly>
+                <button class="qty-btn" onclick="changeQty('buyQty', 1)">+</button>
+            </div>
+            
+        </div>
+        
+        <button class="modal-btn" style="width: 100%;" onclick="submitAction('구매')">구매</button>
+    </div>
+</div>
+
+<!-- 2. 선물 팝업 -->
+<div id="giftModal" class="custom-modal">
+    <div class="modal-box gift-box" style="width: 400px;">
+        <span class="modal-close" onclick="closeModal('giftModal')">&times;</span>
+        <h2 id="giftItemName" class="modal-title" style="margin-top: 10px;">아이템명</h2>
+        <div class="modal-tag" id="giftItemPrice">100 G</div>
+        
+        <div class="form-group" style="margin-top: 20px;">
+            <select id="giftTarget" class="modal-input" style="width: 100%;">
+                <option value="">선물을 전달할 대상을 선택해주세요</option>
+                <!-- 💡 DB에서 불러온 캐릭터 목록으로 선택지 구성 -->
+                {% for char in characters %}
+                    <option value="{{ char.id }}">{{ char.name_kr }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+            <span style="font-size: 0.85rem; color: #8c7e6c; font-weight: bold;">✧ 하단에 메시지를 작성하세요</span>
+            <label style="font-size: 0.85rem; color: #615848; cursor: pointer;">
+                <input type="checkbox" id="giftAnon"> 익명
+            </label>
+        </div>
+        <textarea id="giftMsg" class="modal-input" rows="4" style="width: 100%; box-sizing: border-box; resize: none;" placeholder="메시지를 입력하세요"></textarea>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
+            <div class="qty-wrapper" style="margin: 0;">
+                <button class="qty-btn" onclick="changeQty('giftQty', -1)">-</button>
+                <input type="number" id="giftQty" class="qty-input" value="1" readonly>
+                <button class="qty-btn" onclick="changeQty('giftQty', 1)">+</button>
+            </div>
+            <button class="modal-btn" onclick="submitAction('선물')">선물</button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/store_script.js' %}"></script>
+
+{% endblock %}

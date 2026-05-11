@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+    
+    <link rel="stylesheet" href="{% static 'css/drawflow_custom.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    
+    <div class="editor-menu">
+        <button type="button" class="btn-add cinzel-decorative-bold" onclick="addNode()">
+            ✦ NEW SCRIPT
+        </button>
+    </div>
+
+    <div class="editor-wrapper">
+        <div id="drawflow"></div>
+    </div>
+
+    <div class="inspector-panel" id="inspector">
+        <div class="inspector-header">
+            <h4 class="cinzel-decorative-bold">INSPECTOR</h4>
+            <div class="header-buttons">
+                <button class="btn-delete" onclick="deleteNode()">삭제</button>
+                <button class="btn-save" onclick="saveFullMap()">저장</button>
+            </div>
+        </div>
+
+        <div class="inspector-body">
+    <div class="input-group">
+        <label>스크립트 제목</label>
+        <input type="text" id="node-title" placeholder="예: 광장 진입" oninput="updateNode()">
+    </div>
+
+    <div class="input-group" style="background: #ebe8de; padding: 10px; border-radius: 6px; border: 1px dashed #ba9e7a;">
+        <label>🔙 귀환할 구역(노드) 번호 ID <span style="font-size:0.75rem; font-weight:normal;">(비워두면 버튼 안 생김)</span></label>
+        <input type="number" id="node-return-id" placeholder="예: 1 (1번 노드로 돌아감)" oninput="updateNode()" min="1">
+    </div>
+
+    <div class="input-group">
+        <label>발화자</label>
+        <div class="select-wrapper">
+            <select id="node-speaker" onchange="checkSpeaker(); updateNode();">
+                <option value="none">없음</option>
+                <option value="npc_1">카트린느</option>
+                <option value="npc_2">고양이</option>
+                <option value="npc_3">알바 석상</option>
+                <option value="system">시스템</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>활력 소모량 ⚡</label>
+        <input type="number" id="node-stamina" value="10" min="0" oninput="updateNode()">
+    </div>
+
+
+    <div class="input-group">
+        <label>요구 행운 스탯 🍀 <span style="font-size:0.75rem; font-weight:normal;">(0이면 조건 없음)</span></label>
+        <input type="number" id="node-req-luck" value="0" min="0" oninput="updateNode()">
+    </div>
+
+    <div class="input-group">
+        <label>획득 아이템 이름 <span style="font-size:0.75rem; font-weight:normal;">(없으면 비워둠)</span></label>
+        <input type="text" id="node-item-name" placeholder="예: 정어리 파이" oninput="updateNode()">
+    </div>
+
+    <div class="input-group">
+        <label>획득 아이템 이미지</label>
+        <div class="image-upload-box" onclick="document.getElementById('item-file-input').click()">
+            <span id="item-file-label">✦ 아이템 업로드</span>
+            <input type="file" id="item-file-input" style="display:none" onchange="handleImage(this, 'item')">
+            <img id="item-preview-img" src="" alt="preview" style="display:none;">
+        </div>
+    </div>
+
+
+
+    <div class="input-group">
+        <label>스크립트 내용 <span style="font-size:0.75rem; font-weight:normal;">(@입력 시 분기점)</span></label>
+        <textarea id="node-content" rows="6" placeholder="대사를 입력하세요..." oninput="updateNode()"></textarea>
+    </div>
+
+    <div class="input-group">
+        <label>배경 이미지</label>
+        <div class="image-upload-box" onclick="document.getElementById('bg-file-input').click()">
+            <span id="bg-file-label">✦ 배경 업로드</span>
+            <input type="file" id="bg-file-input" style="display:none" onchange="handleImage(this, 'bg')">
+            <img id="bg-preview-img" src="" alt="preview" style="display:none;">
+        </div>
+    </div>
+
+    <div class="input-group" id="char-image-group" style="display: none;">
+        <label>캐릭터 스탠딩 이미지 (PNG 추천)</label>
+        <div class="image-upload-box char-upload-box" onclick="document.getElementById('char-file-input').click()">
+            <span id="char-file-label">✦ 캐릭터 업로드</span>
+            <input type="file" id="char-file-input" style="display:none" onchange="handleImage(this, 'char')">
+            <img id="char-preview-img" src="" alt="preview" style="display:none;">
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+
+<script>
+    // 장고 변수를 JS 파일로 넘겨주기 위한 브릿지
+    const SAVE_URL = "{% url 'exploration:save_map' %}"; // URL은 프로젝트에 맞게 확인하세요
+    const CSRF_TOKEN = "{{ csrf_token }}";
+    const INITIAL_DATA = {{ map_data|safe|default:"null" }};
+    const CURRENT_MAP_ID = {{ map_id }}; 
+</script>
+
+<script src="{% static 'js/exploration_editor.js' %}"></script>
+{% endblock %}
