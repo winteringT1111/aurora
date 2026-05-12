@@ -4,7 +4,8 @@
         <div class="contribution-display">
             <div class="contribution-emblem">
                 <span class="contribution-label">용사 기여도</span>
-                <div class="contribution-value">30</div>
+                <!-- 기여도 역시 캐릭터 데이터에서 가져오도록 설정 (예: char.contribution) -->
+                <div class="contribution-value">{{ char.contribution|default:30 }}</div>
             </div>
         </div>
 
@@ -12,68 +13,92 @@
             <h3 class="stat-title">DETAILED STATS</h3>
             
             <div class="stat-grid">
+                <!-- 근력 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">근력</span>
-                        <span class="s-val">{{char.stat_str}}</span>
+                        <span class="s-val">{{ char.stat_str }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 80%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_str }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 평판 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">평판</span>
-                        <span class="s-val">{{char.stat_rep}}</span>
+                        <span class="s-val">{{ char.stat_rep }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 90%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_rep }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 민첩 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">민첩</span>
-                        <span class="s-val">{{char.stat_agi}}</span>
+                        <span class="s-val">{{ char.stat_agi }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 90%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_agi }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 선의 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">선의</span>
-                        <span class="s-val">{{char.stat_good}}</span>
+                        <span class="s-val">{{ char.stat_good }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 100%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_good }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 지능 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">지능</span>
-                        <span class="s-val">{{char.stat_int}}</span>
+                        <span class="s-val">{{ char.stat_int }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 50%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_int }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 마력 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">마력</span>
-                        <span class="s-val">{{char.stat_mag}}</span>
+                        <span class="s-val">{{ char.stat_mag }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 15%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_mag }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 행운 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">행운</span>
-                        <span class="s-val">{{char.stat_luk}}</span>
+                        <span class="s-val">{{ char.stat_luk }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 10%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_luk }}%;"></div>
+                    </div>
                 </div>
 
+                <!-- 신성력 -->
                 <div class="stat-box">
                     <div class="stat-info">
                         <span class="s-name">신성력</span>
-                        <span class="s-val">{{char.stat_div}}</span>
+                        <span class="s-val">{{ char.stat_div }}</span>
                     </div>
-                    <div class="s-bar-bg"><div class="s-bar-fill" style="width: 15%;"></div></div>
+                    <div class="s-bar-bg">
+                        <div class="s-bar-fill" style="width: {{ char.stat_div }}%;"></div>
+                    </div>
                 </div>
             </div>
         </div>
