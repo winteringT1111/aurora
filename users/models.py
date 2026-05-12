@@ -9,3 +9,5 @@ class CharInfo(models.Model):
     today_attended = models.BooleanField(default=False)  # 금일 출석 여부 추가
     chap = models.IntegerField(default=0)
     char = models.ForeignKey('member.Character', on_delete=models.CASCADE)
+    last_explore_map_id = models.IntegerField(null=True, blank=True)
+    last_explore_node_id = models.CharField(max_length=50, null=True, blank=True)

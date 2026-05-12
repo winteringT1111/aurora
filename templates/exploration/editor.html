@@ -31,9 +31,30 @@
         </div>
 
         <div class="inspector-body">
-    <div class="input-group">
-        <label>스크립트 제목</label>
-        <input type="text" id="node-title" placeholder="예: 광장 진입" oninput="updateNode()">
+    <!-- 💡 변경된 부분: 8개 스탯 중 하나를 선택하고 수치를 지정하는 영역 -->
+    <div class="input-group" style="background: #fcfbf6; padding: 12px; border-radius: 6px; border: 1px dashed #ba9e7a;">
+        <label>🔒 진입 해금 조건 <span style="font-size:0.75rem; font-weight:normal;">(조건이 없으면 비워두세요)</span></label>
+        
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <div class="select-wrapper" style="flex: 1.5;">
+                <select id="node-req-stat" onchange="updateNode()">
+                    <option value="">-- 조건 없음 --</option>
+                    <option value="strength">근력 (Strength)</option>
+                    <option value="agility">민첩 (Agility)</option>
+                    <option value="intelligence">지능 (Intelligence)</option>
+                    <option value="luck">행운 (Luck)</option>
+                    <option value="stamina">체력 (Stamina)</option>
+                    <option value="charisma">매력 (Charisma)</option>
+                    <option value="willpower">의지 (Willpower)</option>
+                    <option value="perception">통찰 (Perception)</option>
+                </select>
+            </div>
+            
+            <div style="flex: 1; display: flex; align-items: center;">
+                <input type="number" id="node-req-val" placeholder="요구치" value="0" min="0" oninput="updateNode()" style="width: 100%;">
+                <span style="margin-left: 5px; color: #8c7e6c; font-size: 0.9rem;">이상</span>
+            </div>
+        </div>
     </div>
 
     <div class="input-group" style="background: #ebe8de; padding: 10px; border-radius: 6px; border: 1px dashed #ba9e7a;">
@@ -59,11 +80,6 @@
         <input type="number" id="node-stamina" value="10" min="0" oninput="updateNode()">
     </div>
 
-
-    <div class="input-group">
-        <label>요구 행운 스탯 🍀 <span style="font-size:0.75rem; font-weight:normal;">(0이면 조건 없음)</span></label>
-        <input type="number" id="node-req-luck" value="0" min="0" oninput="updateNode()">
-    </div>
 
     <div class="input-group">
         <label>획득 아이템 이름 <span style="font-size:0.75rem; font-weight:normal;">(없으면 비워둠)</span></label>

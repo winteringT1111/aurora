@@ -34,14 +34,37 @@
 
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" data-backdrop="static" data-keyboard="false" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="modal_content_wrap">
-                    <p id="modalContent"></p>
-                    <button type="button" class="btn-primary" data-dismiss="modal">확인</button>
+        <div class="modal-content supply-modal-content">
+            
+            <div class="supply-modal-header">
+                <h5 class="supply-modal-title" id="modalContent">알림</h5>
+            </div>
+
+            <div class="modal-body text-center" style="padding: 20px;">
+                
+                <!-- 보상 획득 연출 박스 (보급 성공 시에만 보임) -->
+                <div class="reward-box-container" id="rewardContainer">
+                    <div class="reward-item-box">
+                        <img src="{% static 'img/coin.png' %}" alt="아이템"  class="reward-icon">
+                        <div class="reward-text">100 G</div>
+                    </div>
+                    <div class="reward-item-box">
+                        <img src="{% static 'img/energy.png' %}" alt="아이템"  class="reward-icon">
+                        <div class="reward-text">SP 초기화</div>
+                    </div>
+                    <div class="reward-item-box">
+                        <!-- JS에서 이미지 주소를 채워넣습니다 -->
+                        <img id="rewardItemImg" src="" alt="아이템">
+                        <div class="reward-text" id="rewardItemName">아이템</div>
+                    </div>
                 </div>
+
+                <div style="margin-top: 25px;">
+                    <button type="button" class="supply-confirm-btn" data-dismiss="modal" onclick="location.reload();">확인</button>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -58,21 +81,30 @@
             }
         })
         .then(response => response.json())
+        // 기존 fetch 요청 결과 처리 부분 (then 부분)
         .then(data => {
-            // Update modal content based on the server response
-            const modalContent = document.getElementById("modalContent");
-            if (data.show_modal === "modal1") {
-                modalContent.innerHTML = data.modal_message; // 출석 완료 메시지
-            } else {
-                modalContent.innerHTML = data.modal_message; // 출석 불가 메시지
-            }
-            // Show the modal
-            $('#exampleModal').modal('show');
+            // 1. 메시지 제목 넣기
+            document.getElementById('modalContent').innerText = data.modal_message;
             
-            // Update attendance count and today's attendance status in the UI
-            document.querySelector('.att_header p:nth-child(1)').textContent = "누적 보급 신청 건수: " + data.attendance_count + "건";
+            // 2. 보상 박스(아이템, 골드 등) 제어
+            const rewardContainer = document.getElementById('rewardContainer');
+            
+            if (data.is_success) {
+                // 성공했다면 보상 상자를 보여주고, 아이템 이미지와 이름을 세팅
+                rewardContainer.style.display = 'flex';
+                document.getElementById('rewardItemName').innerText = data.item_name;
+                
+                // 아이템 이미지 경로 설정 (도트 폴더 경로에 맞게!)
+                const staticPath = "{% static 'img/도트/' %}";
+                document.getElementById('rewardItemImg').src = staticPath + data.item_name + ".png";
+            } else {
+                // 실패(시간 외, 이미 수령)라면 보상 상자 숨기기
+                rewardContainer.style.display = 'none';
+            }
+
+            // 모달 띄우기
+            $('#exampleModal').modal('show');
         })
-        .catch(error => console.error('Error:', error));
     });
 
     document.addEventListener('DOMContentLoaded', function() {

@@ -43,9 +43,10 @@ def character(request, name_en):
 
 
 def members_view(request):
-    characters = Character.objects.all()
+    # 💡 .all() 대신 .order_by('정렬할_필드명')을 쓰면 가나다순(오름차순)으로 가져옵니다.
+    characters = Character.objects.order_by('name_kr')
+    
     return render(request, 'charac/members.html', {'characters': characters})
-
 
 import json
 from django.db import transaction

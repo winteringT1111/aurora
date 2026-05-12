@@ -132,13 +132,6 @@
 }
 
 
-/* 구매 완료 모달의 스타일 */
-#exampleModal .modal-content {
-    background-color: #282828; /* 현재 모달의 어두운 배경색과 유사하게 설정 */
-    border: 2px solid rgb(145,133,118);/* 테두리도 어두운 톤으로 맞춤 */
-    border-radius: 8px; /* 모서리를 살짝 둥글게 */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); /* 그림자 효과 추가 */
-}
 
 #exampleModal .modal-body {
     text-align: center;
@@ -167,3 +160,61 @@
     border-color: #A18359;
 }
 
+
+
+    .supply-modal-content {
+        background: #fcfbf6;
+        border: 2px solid #ba9e7a;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .supply-modal-header {
+        text-align: center;
+        padding: 20px 0 10px 0;
+        border-bottom: 1px dashed #e2d5c3;
+        margin: 0 20px;
+    }
+    .supply-modal-title {
+        font-size: 1.3rem;
+        color: #7a6e5d;
+        font-weight: bold;
+    }
+    .reward-box-container {
+        display: none; /* 실패시엔 숨기고 성공시엔 JS로 보여줄 예정 */
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    .reward-item-box {
+        background: #f7f6ec;
+        border: 1px solid #e2d5c3;
+        border-radius: 6px;
+        padding: 10px;
+        width: 100px;
+        text-align: center;
+    }
+    .reward-item-box img, .reward-icon {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 8px;
+        font-size: 32px; /* 이모지용 */
+        line-height: 48px;
+        image-rendering: pixelated; /* 도트 그래픽 선명하게 */
+    }
+    .reward-text {
+        font-size: 0.85rem;
+        color: #8c7e6c;
+        font-weight: bold;
+    }
+    .supply-confirm-btn {
+        background: #ba9e7a;
+        color: #fff;
+        border: none;
+        padding: 8px 30px;
+        border-radius: 4px;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .supply-confirm-btn:hover {
+        background: #9e9178;
+    }

@@ -5,9 +5,14 @@ from . import views
 app_name = 'exploration'
 
 urlpatterns = [
-    # 에디터 화면 (예: /exploration/editor/1/)
+    # ... 기존 URL들 ...
+
+    # 💡 에디터 접속용 URL (예: /editor/1/)
     path('editor/<int:map_id>/', views.map_editor, name='map_editor'),
-    # 저장 요청용 AJAX 경로
+    
+    # (참고) 에디터 저장용 AJAX URL
     path('save_map/', views.save_map, name='save_map'),
-    path('play/<str:node_id>/', views.play_node, name='play_node'),
+    
+    # (참고) 플레이 화면 URL
+    path('play/<int:map_id>/<str:node_id>/', views.play_node, name='play_node'),
 ]

@@ -148,6 +148,7 @@ def gift_item(request):
 
 from datetime import date, timedelta
 from django.utils import timezone
+import random
 
 @login_required(login_url='/login')
 def supply(request):
@@ -155,51 +156,71 @@ def supply(request):
     charinfo = CharInfo.objects.get(user=getUser)
     userinfo = charinfo.char
     
-    # 현재 시간 확인
     current_time = timezone.localtime(timezone.now())
     current_hour = current_time.hour
     today_date = current_time.date()
     
     if request.method == "POST":
-        # 출석 가능한 시간 6시 ~ 20시
-        if 6 <= current_hour < 20:
-            # 오늘 이미 출석한 기록이 있으면 출석 불가
+        if 0 <= current_hour < 20:
             if charinfo.attendance_date == today_date:
                 show_modal = "modal2"
                 modal_message = "이미 오늘의 보급을 수령했습니다."
+                item_name = ""
+                is_success = False
             else:
-                # 출석이 가능하면 출석 처리
-                userinfo.gold += 100  # 갈레온 추가
-                userinfo.energy += 100 # 수업토큰
-                charinfo.attendance_date = today_date  # 출석일 업데이트
-                charinfo.today_attended = True  # 금일 출석 여부 업데이트
+                # 1. 기본 재화 지급 (골드 추가 및 에너지 100으로 MAX 충전)
+                userinfo.gold += 100 
+                userinfo.energy = 100  # 💡 에너지를 최대치(100)로 꽉 채워줍니다.
+                userinfo.save()        # 💡 [중요] 변경된 캐릭터 정보를 DB에 저장!
                 
-                # 누적 출석 일 수 업데이트
+                # 2. 랜덤 아이템 지급 로직
+                items = Item.objects.all()
+                item_name = ""
+                if items.exists():
+                    random_item = random.choice(items) # 아이템 중 1개 무작위 뽑기
+                    
+                    # 인벤토리에 아이템 추가 (없으면 만들고, 있으면 수량 +1)
+                    inventory_item, created = Inventory.objects.get_or_create(
+                        user=getUser, 
+                        item=random_item,
+                        defaults={'quantity': 0}
+                    )
+                    inventory_item.quantity += 1
+                    inventory_item.save()
+                    item_name = random_item.name # 모달창에 띄워줄 아이템 이름
+                
+                # 3. 출석 기록 업데이트
+                charinfo.attendance_date = today_date
+                charinfo.today_attended = True
                 charinfo.attendance_count += 1
                 charinfo.save()
                 
                 show_modal = "modal1"
-                modal_message = "보급을 수령했습니다."
+                modal_message = "오늘의 보급품이 도착했습니다!"
+                is_success = True
+                
         else:
-            # 출석 시간이 아닌 경우
             show_modal = "modal2"
-            modal_message = "보급 신청이 가능한 시각이 아닙니다."
-        
+            modal_message = "보급 신청이 가능한 시각이 아닙니다. (06:00 ~ 19:59)"
+            item_name = ""
+            is_success = False
+            
         return JsonResponse({
             'show_modal': show_modal, 
             'modal_message': modal_message,
-            'attendance_count': charinfo.attendance_count,  # 누적 출석 일 수
-            'today_attended': charinfo.today_attended  # 금일 출석 현황
+            'is_success': is_success,        # 성공 여부 추가
+            'item_name': item_name,          # 뽑힌 랜덤 아이템 이름 추가
+            'attendance_count': charinfo.attendance_count,
+            'today_attended': charinfo.today_attended 
         })
     
     context = {
         'character': userinfo,
-        'attendance_count': charinfo.attendance_count,  # 템플릿에 누적 출석 일 수 전달
-        'today_attended': charinfo.today_attended  # 템플릿에 금일 출석 여부 전달
+        'attendance_count': charinfo.attendance_count,
+        'today_attended': charinfo.today_attended 
     }
     
     return render(request, "supply.html", context)
-
 
 
 

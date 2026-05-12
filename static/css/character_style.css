@@ -63,6 +63,32 @@
     object-position: top center; /* 머리부터 보여줌 */
 }
 
+.char-img2 {
+    margin-top: 2%;
+    width: 40%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center; /* 머리부터 보여줌 */
+}
+
+.char-img3 {
+    margin-top: 0%;
+    width: 120%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center; /* 머리부터 보여줌 */
+}
+
+.char-img4 {
+    margin-top: -25%;
+    width: 130%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center; /* 머리부터 보여줌 */
+}
+
+
+
 /* 하단 그라데이션과 대사 (스크롤해도 항상 바닥에 고정됨) */
 .quote-overlay {
     position: sticky;
@@ -157,6 +183,10 @@
     display: flex;
     align-items: center; /* 세로 중앙 정렬 */
     gap: 30px; /* 다이아몬드 이미지와 이름 사이의 가로 간격 */
+    width: 395px; /* (디자인에 맞게 200px ~ 300px 사이로 조절해 보세요) */
+    
+    /* 혹시 텍스트가 왼쪽 정렬이 안 되어 있다면 아래 코드도 추가하세요 */
+    text-align: left;
 }
 
 /* 다이아몬드 이미지 사이즈 제어 */
@@ -170,6 +200,7 @@
 /* 텍스트는 좌측 정렬 */
 .name-text-box {
     text-align: left;
+    
 }
 
 .eng-name {

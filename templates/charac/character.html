@@ -79,8 +79,20 @@
     <!-- 좌측: 전신 일러스트 & 대사 -->
     <div class="left-panel">
         <div class="char-image-wrapper">
-            <!-- 💡 캐릭터 전신 이미지를 여기에 넣으세요 -->
-            <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img">
+    <!-- 💡 캐릭터 전신 이미지를 여기에 넣으세요 -->
+            {% if char.name_kr == "악셀" or char.name_kr == "제인" or char.name_kr == "시엘라 하르트"  %}
+                <!-- 지정된 3명은 char-img2 클래스 적용 -->
+                <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img2">
+            {% elif char.name_kr == "자피르 카이자르" %}
+                <!-- 지정된 3명은 char-img2 클래스 적용 -->
+                <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img3">
+                {% elif char.name_kr == "타엘론 카르테시"%}
+                <!-- 지정된 3명은 char-img2 클래스 적용 -->
+                <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img4">
+            {% else %}
+                <!-- 나머지 캐릭터들은 기본 char-img 클래스 적용 -->
+                <img src="{% get_static_prefix %}img/member/전신/{{ char.name_en }}.png" alt="{{ char.name_kr }}" class="char-img">
+            {% endif %}
         </div>
         
         <!-- 하단 검정 그라데이션 & 대사 (스크롤 시 고정) -->
@@ -100,7 +112,7 @@
             <div class="name-block">
                 <!-- 좌측 다이아몬드 이미지 -->
                 <div class="portrait-box">
-                    <img src="{% static 'img/race/dragon.png' %}" alt="portrait" class="diamond-img">
+                    <img src="{% get_static_prefix %}img/race/{{ char.race }}.png" alt="portrait" class="diamond-img">
                 </div>
                 
                 <!-- 우측 이름 텍스트 -->
@@ -144,7 +156,13 @@
                             {% if char.keyword3 %}<span class="keyword">{{ char.keyword3 }}</span>{% endif %}
                         </div>
                         <div class="text-content">
-                            {{ char.personality|linebreaksbr|safe }}
+                            {% if char.name_kr == "얀 베스페르" or char.name_kr == "마그누스 프로스트혼" or char.name_kr == "베오플래드 니드피르" or char.name_kr == "스트루안 크레이그" or char.name_kr == "흐로드 비트니손" %}
+                                <!-- 💡 특정 캐릭터 5명은 linebreaksbr 없이 출력 -->
+                                {{ char.personality|safe }}
+                            {% else %}
+                                <!-- 💡 나머지 캐릭터들은 기존처럼 줄바꿈 포함해서 출력 -->
+                                {{ char.personality|linebreaksbr|safe }}
+                            {% endif %}
                         </div>
                     </div>
                 </details>
@@ -154,9 +172,13 @@
                     <summary>Appearance</summary>
                     <div class="accordion-content">
                         <div class="text-content">
-                            
+                            {% if char.name_kr == "얀 베스페르" or char.name_kr == "바르카" %}
+                                <!-- 💡 얀 베스페르, 바르카는 linebreaksbr 없이 출력 -->
+                                {{ char.appearance|safe }}
+                            {% else %}
+                                <!-- 💡 나머지 캐릭터들은 기존처럼 출력 -->
                                 {{ char.appearance|linebreaksbr|safe }}
-
+                            {% endif %}
                         </div>
                     </div>
                 </details>
@@ -166,10 +188,12 @@
                     <summary>Other Info</summary>
                     <div class="accordion-content">
                         <div class="text-content">
-                            {% if char.other_info %}
-                                {{ char.other_info|linebreaksbr|safe }}
+                            {% if char.name_kr == "얀 베스페르" or char.name_kr == "이그나타" or char.name_kr == "마그누스 프로스트혼" or char.name_kr == "바르카" or char.name_kr == "베오플래드 니드피르" or char.name_kr == "스트루안 크레이그" or char.name_kr == "흐로드 비트니손" %}
+                                <!-- 💡 위 7명의 캐릭터는 linebreaksbr 없이 출력 -->
+                                {{ char.other_info|safe }}
                             {% else %}
-                                추가 정보가 존재하지 않습니다.
+                                <!-- 💡 나머지 캐릭터들은 기존처럼 줄바꿈 포함해서 출력 -->
+                                {{ char.other_info|linebreaksbr|safe }}
                             {% endif %}
                         </div>
                     </div>

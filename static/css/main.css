@@ -343,7 +343,7 @@
     color: #8c7e6c;
     font-size: 1.5rem;
     letter-spacing: 5px;
-    margin-bottom: 20px;
+    margin-bottom: -10px;
 }
 
 .calendar-mock {
@@ -352,20 +352,8 @@
     text-align: center;
 }
 
-.cal-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 0 10px;
-}
 
 
-
-.cal-placeholder {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #615848;
-}
 
 /* 중간-우측 스택 (맵, 퀘스트) */
 .info-stack {
@@ -438,7 +426,8 @@
     padding: 35px 30px;
     
     /* 기본 상태: 흐릿한 배경 이미지 */
-    background-image: url('../img/search_valterion_2.png'); /* 흐린 이미지 경로 */
+    
+    background-image: url('../img/search_valterion.png'); /* 맑은 이미지 경로 */
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -449,7 +438,7 @@
 
 /* 마우스 호버 시 배경 이미지 변경 */
 .quest-panel:hover .panel-inner {
-    background-image: url('../img/search_valterion.png'); /* 맑은 이미지 경로 */
+    background-image: url('../img/search_valterion_3.png'); /* 흐린 이미지 경로 */
 }
 
 .story-desc {
@@ -586,12 +575,6 @@
     margin-bottom: 15px;
 }
 
-.cal-nav .panel-title {
-    margin: 0;
-    font-size: 1.3rem;
-    font-family: "Cinzel Decorative", serif;
-    font-weight: bold
-}
 
 .cal-nav-btn {
     background: none;
@@ -628,25 +611,44 @@
     margin-bottom: 5px;
 }
 
-.cal-grid {
+.cal-nav .panel-title {
+
+    font-size: 1.3rem;
+    font-family: "Cinzel Decorative", serif;
+    font-weight: bold
+}
+
+/* 1. 달력 칸들을 감싸는 부모 그리드 (.cal-days 등, HTML의 클래스명에 맞게 확인해주세요) */
+.cal-grid { /* 혹은 .calendar-interactive의 안쪽 그리드 클래스 */
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 1px; /* 얇은 테두리 효과를 위한 간격 */
-    background: #e2d5c3; /* 달력 전체 그리드 선 색상 */
-    border: 1px solid #e2d5c3;
-    flex: 1;
+    grid-auto-rows: 1fr; /* 💡 모든 줄의 높이를 똑같이 강제 맞춤 */
+    gap: 0; /* 틈새는 아예 없앱니다 */
+
+    /* ✨ 겹침 방지 1단계: 전체 틀의 '위'와 '왼쪽'에만 선을 긋습니다 */
+    border-top: 1px solid #e2d5c3;
+    border-left: 1px solid #e2d5c3;
 }
 
+/* 2. 개별 달력 칸 */
 .cal-day {
     background: #fcfbf6;
-    height: 30px;
-    min-height: 20px; /* 날짜 칸 최소 높이 */
-    padding: 2px;
+    
+    /* ✨ 겹침 방지 2단계: 개별 칸은 '아래'와 '오른쪽'에만 선을 긋습니다 (겹침 완벽 차단!) */
+    border-right: 1px solid #e2d5c3;
+    border-bottom: 1px solid #e2d5c3;
+
+    /* 🚨 찌그러짐의 원인이었던 기존의 border: 1px solid ~ 와 aspect-ratio는 반드시 지워주세요! */
+    
+    min-height: 50px; /* 💡 정사각형 대신 여유 있는 최소 높이를 설정 (틀에 맞게 70~80 사이로 조절해보세요) */
+    box-sizing: border-box;
+    padding: 4px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden; /* 일정이 넘쳐도 칸이 안 늘어나게 고정 */
 }
 
+/* 3. 이번 달이 아닌 날짜(빈칸 등) 배경색 */
 .cal-day.other-month {
     background: #f7f6ec;
 }
@@ -683,7 +685,7 @@
 .event-detail-panel {
     display: none; /* 기본 숨김 */
     position: fixed; /* 💡 화면 기준 고정, JS가 좌표 제어 */
-    width: 250px;
+    width: 208px;
     z-index: 2000; /* 맨 위로 띄움 */
     pointer-events: none; /* 💡 마우스가 이 창에 걸려서 깜빡거리는 현상 방지 */
 }
@@ -694,10 +696,12 @@
     border: 2px solid #cdc6b8;
     box-shadow: 0 4px 15px rgba(122, 106, 88, 0.2);
     padding: 15px;
+   width: 200px;
 }
 
 .tooltip-title {
     color: #a19279;
+    
     font-size: 0.9rem;
     text-align: center;
     border-bottom: 1px dashed #cdc6b8;
@@ -786,36 +790,7 @@
 
 
 
-/* 캘린더 그리드 설정 (날짜 칸 기본 디자인) */
-.cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background: #e2d5c3;
-    border: 1px solid #e2d5c3;
-    overflow: hidden; 
-    flex: 0.8; /* 높이를 꽉 채우도록 */
-}
 
-.cal-day {
-    background: #fcfbf6;
-    min-height: 70px; /* 캘린더 세로 칸 높이 조절 */
-    position: relative; /* 자식인 바(Bar)들이 앱솔루트로 붙을 수 있게 */
-    overflow: hidden;
-}
-
-.cal-day.other-month { background: #f7f6ec; }
-
-.cal-day .date-num {
-    font-size: 0.75rem;
-    color: #8c7e6c;
-    margin: 2px 0 0 2px;
-    font-weight: bold;
-    position: relative;
-    z-index: 10; /* 날짜 숫자가 바 밑에 깔리지 않도록 */
-}
-
-.cal-day.other-month .date-num { color: #cdc6b8; }
 
 
 
