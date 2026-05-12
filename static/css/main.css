@@ -116,7 +116,7 @@
     width: 70vw;
     height: 80vh;
     position: fixed;
-    top: 48%;
+    top: 46.5%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
@@ -674,6 +674,63 @@
 
 
 
+.starr {
+    width: 30px;
+}
+
+/* 헤더 전체 레이아웃 */
+.main-header {
+    display: flex;
+    align-items: center; /* 세로 중앙 정렬 */
+    margin-bottom: 20px;
+}
+
+/* 로고 사이즈 조절 */
+.main-logo {
+    height: 180px; /* 로고 크기에 맞게 조절하세요 */
+    width: auto;
+    margin-right: 40px; /* 로고와 첫 메뉴 사이 간격 */
+}
+
+/* 메뉴 바 스타일 */
+.main-nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 100px;
+    gap: 30px; /* 메뉴 글자들 사이의 간격 */
+}
+
+.main-nav ul li a {
+    text-decoration: none;
+    color: #9e9178; /* 이미지와 비슷한 세피아/골드 톤 */
+    font-family: 'Cinzel Decorative', serif; /* 로고와 어울리는 폰트 */
+    font-size: 1.6rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-transform: capitalize; /* 첫 글자만 대문자로 */
+}
+
+/* 마우스 올렸을 때 효과 */
+.main-nav ul li a:hover {
+    color: #ba9e7a;
+    text-shadow: 0 0 8px rgba(186, 158, 122, 0.4);
+    transform: translateY(-2px);
+}
+
+/* (옵션) 반응형: 화면이 좁아지면 간격 조절 */
+@media (max-width: 1200px) {
+    .main-header {
+        padding: 20px;
+    }
+    .main-nav ul {
+        gap: 15px;
+    }
+    .main-nav ul li a {
+        font-size: 1rem;
+    }
+}
 
 
 

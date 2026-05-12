@@ -5,7 +5,6 @@ from member.models import Character
 from users.models import CharInfo
 from django.contrib.auth.decorators import login_required
 from .models import *
-from .forms import *
 
 
 def signup(request):

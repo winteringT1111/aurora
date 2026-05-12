@@ -15,7 +15,9 @@
 
 
 
-{% include "UI.html" %}
+ {% include "UI.html" %}
+
+
 
     <div class="floating-login">
         <form method="post" action="{% url 'users:users_login' %}">
@@ -37,14 +39,29 @@
             <button type="submit" class="login-submit">LOGIN</button>
         </form>
     </div>
+    
 
 
     <main class="content">
-
-        <div class="logo"><img src="{% static 'img/logo.png' %}" alt="logo"></div>
+    <!-- 로고와 메뉴를 감싸는 헤더 영역 -->
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="{% static 'img/logo.png' %}" alt="logo" class="main-logo">
+        </div>
         
+        <nav class="main-nav">
+            <ul>
+                <li><a href="https://cafe.naver.com/f-e/cafes/31675312/articles/4?boardtype=L&menuid=2&referrerAllArticles=false&page=2">World</a></li>
+                <li><a href="https://cafe.naver.com/f-e/cafes/31675312/articles/2?boardtype=L&menuid=2&referrerAllArticles=false&page=2">Notice</a></li>
+                <li><a href="https://cafe.naver.com/f-e/cafes/31675312/articles/7?boardtype=L&menuid=2&referrerAllArticles=false&page=1">System</a></li>
+                <li><a href="/play/1">Expedition</a></li>
+                <li><a href="/store">Store</a></li>
+            </ul>
+        </nav>
+    </header>
 
-<div class="main-dashboard">
+    <!-- 이하 기존 코드 (main-dashboard 등) -->
+    <div class="main-dashboard">
     
     <div class="left-panel">
 
@@ -69,7 +86,7 @@
         <div class="weather-bar">
             <span class="weather-desc">구름을 거두고 햇빛이 내리쬐고 있다.</span>
             <span class="weather-temp">20℃</span>
-            <span class="weather-loc">Valterion</span><span class="weather-de">✦</span>
+            <span class="weather-loc">Valterion</span><span class="weather-de"><img src="{% static 'img/star.png' %}" alt="기사단 문장 핀" class="starr"></span>
         </div>
 
         <div class="dashboard-middle">
@@ -138,6 +155,14 @@
                     <div class="item-slot"><img src="{% static 'img/도트/방패 문양 호신부.png' %}" alt="방패 문양 호신부"></div>
                     <div class="item-slot"><img src="{% static 'img/도트/발테리온 산 포도주.png' %}" alt="발테리온 산 포도주"></div>
                     <div class="item-slot"><img src="{% static 'img/도트/저주 받은 검.png' %}" alt="저주 받은 검"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
+                    <div class="item-slot"></div>
                     
                 </div>
             </div>
