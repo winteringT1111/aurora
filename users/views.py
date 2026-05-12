@@ -20,8 +20,12 @@ def signup(request):
             auth.login(request,Newuser)
 
             user = request.user
-            char = CharInfo(char=Character.objects.get(name_en=request.POST['username']),
+            charac = CharInfo(char=Character.objects.get(name_en=request.POST['username']),
                             user=user,)
+            charac.save()
+
+            char=Character.objects.get(name_en=request.POST['username'])
+            char.gold = request.POST['gold']
             char.save()
             
             return redirect('main:main_page')

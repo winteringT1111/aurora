@@ -9,6 +9,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'category', 'price', 'is_sellable')
     list_display_links = ('id', 'name')
     list_filter = ('category', 'is_sellable')
+    list_editable = ('price', 'is_sellable')
     search_fields = ('name',)
 
 @admin.register(Recipe)
