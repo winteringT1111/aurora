@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="editor-container">
+
     
     <div class="editor-menu">
         <button type="button" class="btn-add cinzel-decorative-bold" onclick="addNode()">
@@ -38,21 +40,30 @@
         <div style="display: flex; gap: 10px; margin-top: 5px;">
             <div class="select-wrapper" style="flex: 1.5;">
                 <select id="node-req-stat" onchange="updateNode()">
+                    
                     <option value="">-- 조건 없음 --</option>
-                    <option value="strength">근력 (Strength)</option>
-                    <option value="agility">민첩 (Agility)</option>
-                    <option value="intelligence">지능 (Intelligence)</option>
-                    <option value="luck">행운 (Luck)</option>
-                    <option value="stamina">체력 (Stamina)</option>
-                    <option value="charisma">매력 (Charisma)</option>
-                    <option value="willpower">의지 (Willpower)</option>
-                    <option value="perception">통찰 (Perception)</option>
+                    <option value="stat_str">근력 (STR)</option>
+                    <option value="stat_agi">민첩 (AGI)</option>
+                    <option value="stat_int">지능 (INT)</option>
+                    <option value="stat_luk">행운 (LUK)</option>
+                    <option value="stat_rep">평판 (REP)</option>
+                    <option value="stat_good">선의 (GOOD)</option>
+                    <option value="stat_mag">마력 (MAG)</option>
+                    <option value="stat_div">신성력 (DIV)</option>
                 </select>
             </div>
             
-            <div style="flex: 1; display: flex; align-items: center;">
-                <input type="number" id="node-req-val" placeholder="요구치" value="0" min="0" oninput="updateNode()" style="width: 100%;">
-                <span style="margin-left: 5px; color: #8c7e6c; font-size: 0.9rem;">이상</span>
+            <div class="inspector-group">
+                <label>판정 방식</label>
+                <select id="node-req-operator" onchange="updateNode()">
+                    <option value="gte">이상 (>=)</option>
+                    <option value="lt">미만 (<)</option>
+                </select>
+            </div>
+
+            <div class="inspector-group">
+                <label>필요 수치</label>
+                <input type="number" id="node-req-val" value="0" oninput="updateNode()">
             </div>
         </div>
     </div>
@@ -62,22 +73,34 @@
         <input type="number" id="node-return-id" placeholder="예: 1 (1번 노드로 돌아감)" oninput="updateNode()" min="1">
     </div>
 
-    <div class="input-group">
-        <label>발화자</label>
-        <div class="select-wrapper">
-            <select id="node-speaker" onchange="checkSpeaker(); updateNode();">
-                <option value="none">없음</option>
-                <option value="npc_1">카트린느</option>
-                <option value="npc_2">고양이</option>
-                <option value="npc_3">알바 석상</option>
-                <option value="system">시스템</option>
-            </select>
-        </div>
+    <div class="inspector-group">
+    <label>스크립트 제목</label>
+    <!-- oninput="updateNode()"를 넣어 실시간으로 노드에 반영되게 합니다 -->
+    <input type="text" id="node-title" placeholder="제목을 입력하세요" oninput="updateNode()">
+</div>
+
+<!-- 발화자 이름 입력 -->
+<div class="inspector-group">
+    <label>발화자 성함</label>
+    <input type="text" id="node-speaker" placeholder="직접 입력하세요" oninput="updateNode()">
+</div>
+
+<!-- 💡 발화자 이미지 업로드 영역 -->
+<div class="inspector-group">
+    <label>발화자 모습</label>
+    <div class="file-upload-box">
+        <label for="char-file" id="char-file-label" class="file-label">
+            <i class="fa-solid fa-person-rays"></i> 이미지 설정
+        </label>
+        <input type="file" id="char-file" accept="image/*" onchange="handleImage(this, 'char')" style="display:none;">
+        <!-- 이미지가 있을 때만 나타나는 프리뷰 -->
+        <img id="char-preview-img" src="" style="display:none; width:100%; border-radius:8px; border:1px solid #ba9e7a; margin-top:8px;">
     </div>
+</div>
 
     <div class="input-group">
         <label>활력 소모량 ⚡</label>
-        <input type="number" id="node-stamina" value="10" min="0" oninput="updateNode()">
+        <input type="number" id="node-stamina" value="1" min="0" oninput="updateNode()">
     </div>
 
 
@@ -111,25 +134,18 @@
         </div>
     </div>
 
-    <div class="input-group" id="char-image-group" style="display: none;">
-        <label>캐릭터 스탠딩 이미지 (PNG 추천)</label>
-        <div class="image-upload-box char-upload-box" onclick="document.getElementById('char-file-input').click()">
-            <span id="char-file-label">✦ 캐릭터 업로드</span>
-            <input type="file" id="char-file-input" style="display:none" onchange="handleImage(this, 'char')">
-            <img id="char-preview-img" src="" alt="preview" style="display:none;">
-        </div>
-    </div>
+
 </div>
     </div>
 </div>
 
-<script>
-    // 장고 변수를 JS 파일로 넘겨주기 위한 브릿지
-    const SAVE_URL = "{% url 'exploration:save_map' %}"; // URL은 프로젝트에 맞게 확인하세요
-    const CSRF_TOKEN = "{{ csrf_token }}";
-    const INITIAL_DATA = {{ map_data|safe|default:"null" }};
-    const CURRENT_MAP_ID = {{ map_id }}; 
-</script>
+    <script>
+        // 장고 변수를 JS 파일로 넘겨주기 위한 브릿지
+        const CSRF_TOKEN = '{{ csrf_token }}';
+        const SAVE_URL = "{% url 'exploration:save_map' %}"; // URL은 프로젝트에 맞게 확인하세요
+        const INITIAL_DATA = {{ map_data|safe|default:"null" }};
+        const CURRENT_MAP_ID = {{ map_id }}; 
+    </script>
 
-<script src="{% static 'js/exploration_editor.js' %}"></script>
-{% endblock %}
+    <script src="{% static 'js/exploration_editor.js' %}"></script>
+    {% endblock %}

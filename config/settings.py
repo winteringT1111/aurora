@@ -147,6 +147,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # settings.py
 
-# 요청 데이터(Request body) 최대 크기 설정 (예: 50MB로 넉넉하게 늘림)
-# 50 * 1024 * 1024 = 52428800 bytes
-DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800
+# 전송 데이터 제한을 20MB로 상향 (필요에 따라 조절하세요)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520000  # 500 * 1024 * 1024 (20MB)
+
+# 파일 업로드 관련 제한도 함께 상향하는 것이 안전합니다.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520000
