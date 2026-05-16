@@ -8,18 +8,23 @@
     /* =========================================
        비주얼 노벨 스타일 플레이 화면 CSS (최종)
        ========================================= */
-    .play-container {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        /* 배경 이미지는 톤앤매너를 위해 'cover' 대신 '100% 100%'를 사용하거나 'cover'를 유지합니다 */
-        background: url('{{ node_data.bg_url|default:"/static/img/default_bg.jpg" }}') no-repeat center center/cover;
-        transition: background-image 0.8s ease-in-out;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-    }
+ .play-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    
+    /* 🛠️ 배경 이미지 꽉 채우기 및 반복 방지 설정 */
+    background-size: cover;          /* 화면 비율에 맞추어 빈틈없이 꽉 채움 */
+    background-position: center;     /* 이미지를 화면 정중앙에 배치하여 잘림 최소화 */
+    background-repeat: no-repeat;    /* 이미지 바둑판식 반복 현상 절대 방지 */
+    
+   
+    transition: background-image 0.8s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
 
     /* 💡 수정됨: 캐릭터 스탠딩 이미지 (이미지 파일 자체를 불러옴) */
     .character-standing-img {
@@ -211,11 +216,13 @@
     color: #cdc6b8;
 }
 </style>
-<div class="play-container">
+<div class="play-container" style="background-image: url('{% static 'img/조사/' %}{{ bg_img_name }}.png');">
     {% include "UI.html" %}
     
-    {% if node_data.char_image %}
-        <img src="{{ node_data.char_image }}" alt="캐릭터" class="character-standing-img" id="character-img">
+    {% if speaker_img_name and speaker_img_name != 'default_speaker.png' %}
+        <img src="{% static 'img/조사/' %}{{ speaker_img_name }}.png" 
+             onerror="this.src='{% static 'img/default_speaker.png' %}';" 
+             alt="캐릭터" class="character-standing-img" id="character-img">
     {% endif %}
 
     <div class="choice-container" id="choice-container">
@@ -229,20 +236,18 @@
                     </span>
                 </button>
             {% else %}
-                {% if not choice.is_unlocked %}
-                    <button class="btn-choice disabled" disabled>
-                        ✦ {{ choice.text }}
-                        <span class="condition-tooltip">
-                            필요: {{ choice.req_stat_name }} 
-                            {% if choice.req_operator == 'lt' %}{{ choice.req_val }} 미만{% else %}{{ choice.req_val }} 이상{% endif %}
-                        </span>
-                    </button>
-                {% endif %}
+                <button class="btn-choice disabled" disabled>
+                    ✦ {{ choice.text }}
+                    <span class="condition-tooltip">
+                        필요: {{ choice.req_stat_name }} 
+                        {% if choice.req_operator == 'lt' %}{{ choice.req_val }} 미만{% else %}{{ choice.req_val }} 이상{% endif %}
+                    </span>
+                </button>
             {% endif %}
         {% endfor %}
 
         {% if node_data.return_id %}
-            <button class="btn-choice" onclick="location.href='{% url 'exploration:play_node' map_id node_data.return_id %}'">
+            <button class="btn-choice" onclick="location.href='{% url 'exploration:play_node' map_id node_data.return_id %}?return=true'">
                 ✦ 처음으로 돌아간다
             </button>
         {% endif %}
@@ -259,14 +264,13 @@
         </div>
     </div>
 
-    {% if node_data.reward_item_name %}
-    <div class="item-reward-popup" id="reward-popup">
-            <!-- 💡 아이템 이름이 있을 때만 이미지를 로드하도록 조건 강화 -->
-            <img src="{% static 'img/도트/' %}{{ node_data.item_name }}.png" 
-                onerror="this.src='{% static 'img/default_item.png' %}';" alt="아이템">
-            <h3>ITEM ACQUIRED</h3>
-            <p><strong>[{{ node_data.item_name }}]</strong> 획득!</p>
-        </div>
+    {% if node_data.item_name %}
+    <div class="item-reward-popup" id="reward-popup" onclick="this.style.display='none';">
+        <img src="{% static 'img/도트/' %}{{ node_data.item_name }}.png" 
+             onerror="this.src='{% static 'img/default_item.png' %}';" alt="아이템">
+        <h3>ITEM ACQUIRED</h3>
+        <p><strong>[{{ node_data.item_name }}]</strong> 획득!</p>
+    </div>
     {% endif %}
   
 </div>
@@ -338,5 +342,22 @@
         if (charImg) charImg.style.opacity = "1";
         setTimeout(typeWriter, 500); 
     };
+
+    document.addEventListener("DOMContentLoaded", function() {
+        // URL에서 현재 노드 ID 추출
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const current_node = pathSegments[pathSegments.length - 1]; 
+        
+        const last_node = "{{ last_node_id|default:'' }}";
+        const map_id = "{{ map_id }}";
+
+        // 진짜 처음 진입(27)했을 때만 이어서 하기 팝업 실행
+        if (current_node === '27' && last_node && last_node !== '27') {
+            const is_confirmed = confirm("이전 진행도가 존재합니다. 이어서 하시겠습니까?");
+            if (is_confirmed) {
+                window.location.href = `/play/${map_id}/${last_node}/`;
+            }
+        }
+    });
 </script>
 {% endblock %}
