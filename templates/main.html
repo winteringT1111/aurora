@@ -17,8 +17,9 @@
 
  {% include "UI.html" %}
 
+{% if user.is_authenticated %}
 
-
+{% else %}
     <div class="floating-login">
         <form method="post" action="{% url 'users:users_login' %}">
         {% csrf_token %}
@@ -40,7 +41,7 @@
         </form>
     </div>
     
-
+{% endif %}
 
     <main class="content">
     <!-- 로고와 메뉴를 감싸는 헤더 영역 -->
