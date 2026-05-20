@@ -29,7 +29,7 @@ class CharacterAdmin(admin.ModelAdmin):
     search_fields = ('name_kr', 'name_en')
     list_filter = ('gold', 'energy')
     list_per_page = 100
-    fields = ('name_kr', 'name_en', 'gold', 'energy')
+    fields = ('name_kr', 'name_en', 'gold', 'energy','personality')
 
 @admin.register(Gift)
 class GiftAdmin(admin.ModelAdmin):
