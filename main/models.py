@@ -11,6 +11,11 @@ class Item(models.Model):
         ('CONSUMABLE', '소모품'),
         ('EQUIPMENT', '소지품'),
         ('SPECIAL', '특수 아이템'),
+        ('ORGANIC', '유기재료'),
+        ('MINERAL', '광물'),
+        ('CLOTHES', '옷'),
+        ('JEWELRY', '장신구'),
+        ('NORMAL', '일반재료'),
     )
 
     # 기본 정보
