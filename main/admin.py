@@ -22,14 +22,49 @@ class RecipeAdmin(admin.ModelAdmin):
     # (만약 Character 모델과 연결되었다면 discoverer__name_kr 로 변경해 주세요)
     search_fields = ('itemName', 'material1', 'material2', 'material3', 'material4', 'discoverer__username')
 
+from django.contrib import admin
+from .models import Character
+
 @admin.register(Character)
 class CharacterAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name_kr', 'name_en', 'gold', 'energy')
-    list_editable = ('gold', 'energy')
+    # 1. 목록 화면에 보여줄 필드들 (id를 맨 앞에 두고, 서술형 TextField는 뺐습니다)
+    list_display = (
+         'id','name_kr', 'name_en', 
+        'stat_str', 'stat_agi', 'stat_int', 'stat_luk', 'stat_rep', 'stat_good', 'stat_mag', 'stat_div',
+        'gold', 'energy'
+    )
+    
+    # 2. 목록 화면에서 마우스 클릭으로 바로 수정할 필드들 (id 제외하고 전부 등록)
+    list_editable = (
+        'name_kr', 'name_en', 
+        'stat_str', 'stat_agi', 'stat_int', 'stat_luk', 'stat_rep', 'stat_good', 'stat_mag', 'stat_div',
+        'gold', 'energy'
+    )
+    
+    # 3. 검색 기능 (한글 이름, 영어 이름으로 검색 가능)
     search_fields = ('name_kr', 'name_en')
-    list_filter = ('gold', 'energy')
+    
+    # 4. 우측 필터 사이드바 (종족이나 성별로 필터링하면 관리하기 편합니다)
+    list_filter = ('race', 'gender')
+    
+    # 5. 한 페이지에 보여줄 개수
     list_per_page = 100
-    fields = ('name_kr', 'name_en', 'gold', 'energy','personality')
+    
+    # 6. 개별 캐릭터를 클릭해 들어갔을 때(상세 페이지) 보여줄 레이아웃 그룹화
+    fieldsets = (
+        ('기본 정보', {
+            'fields': ('name_kr', 'name_en', 'catchphrase', 'quote')
+        }),
+        ('신상 정보', {
+            'fields': ('origin', 'gender', 'age', 'race', 'animal_type', 'height', 'weight')
+        }),
+        ('성격 및 설정 서술', {
+            'fields': ('keyword1', 'keyword2', 'keyword3', 'appearance', 'personality', 'other_info')
+        }),
+        ('스탯 및 재화', {
+            'fields': ('stat_str', 'stat_agi', 'stat_int', 'stat_luk', 'stat_rep', 'stat_good', 'stat_mag', 'stat_div', 'gold', 'energy')
+        }),
+    )
 
 @admin.register(Gift)
 class GiftAdmin(admin.ModelAdmin):
