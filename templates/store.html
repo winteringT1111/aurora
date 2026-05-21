@@ -60,6 +60,7 @@
             <button class="store-tab" data-filter="식재료">식재료</button>
             <button class="store-tab" data-filter="일반재료">일반재료</button>
             <button class="store-tab" data-filter="장신구">장신구</button>
+            <button class="store-tab" data-filter="선물">선물</button>
             <button class="store-tab" data-filter="정수">정수</button>
         </div>
 
@@ -67,7 +68,7 @@
         <div class="store-grid" id="storeGrid">
             {% for item in items_data %}
             <!-- data-category 속성에 카테고리 영문명(예: FOOD, MINERAL)을 넣어 필터링에 사용 -->
-            <div class="store-item" data-category="{{ item.get_category_display }}" 
+            <div class="store-item" data-category="{{ item.category }}" 
                 onclick="selectItem('{{ item.id }}', '{{ item.name }}', '{{ item.price }}', '{{ item.desc|escapejs }}', '{% static 'img/도트/' %}{{ item.name }}.png')">
                 
                 <!-- 💡 아이템 이미지 영역 (고급스러운 테두리) -->
@@ -78,7 +79,7 @@
                 <!-- 💡 아이템 정보 영역 -->
                 <div class="item-info">
                     <!-- 새로 추가된 카테고리 표시 -->
-                    <div class="item-category">〈 {{ item.get_category_display }} 〉</div>
+                    <div class="item-category">〈 {{ item.category }} 〉</div>
                     
                     <div class="item-name">{{ item.name }}</div>
                     <div class="item-price">{{ item.price }} G</div>
