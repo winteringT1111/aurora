@@ -281,8 +281,6 @@
     const charImg = document.getElementById('character-img');
     const rewardPopup = document.getElementById('reward-popup');
 
-    // 💡 Drawflow에 저장된 story_text를 가져옵니다.
-    // 에디터에서 'content' 필드에 대사를 저장했다면 아래와 같이 수정해야 텍스트가 나옵니다.
     const fullText = `{{ node_data.content|escapejs }}`.replace(/\\n/g, '<br>');
     
     let index = 0;
@@ -315,7 +313,6 @@
         const rewardPopup = document.getElementById('reward-popup');
         if (rewardPopup) {
             rewardPopup.classList.add('show');
-            // 2초 뒤에 팝업을 닫고 선택지를 보여줌
             setTimeout(() => {
                 rewardPopup.classList.remove('show');
                 showChoices();
@@ -343,16 +340,18 @@
         setTimeout(typeWriter, 500); 
     };
 
+    // 🛠️ [동적 변경 완료] 맵별 첫 페이지 진입 시에만 이어서 하기 실행
     document.addEventListener("DOMContentLoaded", function() {
         // URL에서 현재 노드 ID 추출
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         const current_node = pathSegments[pathSegments.length - 1]; 
         
+        // 장고 서버에서 넘겨준 현재 맵의 '진짜 시작 노드'와 '이전 저장 노드'
+        const start_node = "{{ start_node_id }}"; 
         const last_node = "{{ last_node_id|default:'' }}";
         const map_id = "{{ map_id }}";
 
-        // 진짜 처음 진입(27)했을 때만 이어서 하기 팝업 실행
-        if (current_node === '27' && last_node && last_node !== '27') {
+        if (current_node === start_node && last_node && last_node !== start_node) {
             const is_confirmed = confirm("이전 진행도가 존재합니다. 이어서 하시겠습니까?");
             if (is_confirmed) {
                 window.location.href = `/play/${map_id}/${last_node}/`;

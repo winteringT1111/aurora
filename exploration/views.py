@@ -74,6 +74,12 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 
 
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from .models import ExplorationMap, CharInfo  # 필요한 모델들을 임포트하세요
+from member.models import Item, Inventory    # 아이템 및 인벤토리 모델 경로 확인
+
 @login_required(login_url='/login')
 def play_node(request, map_id, node_id):
     # 스탯 표시 이름 매핑 (8종 스탯 일치)
@@ -101,16 +107,21 @@ def play_node(request, map_id, node_id):
     except KeyError:
         return redirect('exploration:play_node', map_id=map_id, node_id='1')
 
-    # 🛠️ [최적화 추가] 에디터에서 입력한 이미지 파일명을 가져옵니다.
-    # 에디터 인풋 창의 df-bg_img_name, df-speaker_img_name 과 매핑됩니다.
-    # 입력 값이 없거나 빈 문자열일 경우를 대비해 기본 파일명(default)을 지정해 줍니다.
+    # 🛠️ [최적화] 에디터에서 입력한 이미지 파일명을 가져옵니다. (없으면 기본값)
     bg_img_name = node_custom_data.get('bg_img_name') or 'default_bg.png'
     speaker_img_name = node_custom_data.get('speaker_img_name') or 'default_speaker.png'
 
-    # 🛠️ [중요] 팝업창 판단을 위해 '진짜 예전 기록'을 변수에 따로 백업해 둡니다.
+    # 🛠️ [동적 처리 추가] 각 맵 ID별 '시작 노드 번호' 매핑
+    START_NODES = {
+        1: '27',  # 1번 맵의 시작 노드는 27
+        2: '1',   # 2번 맵의 시작 노드는 1
+    }
+    start_node_id = START_NODES.get(map_id, '1')
+
+    # 🛠️ 팝업창 판단을 위해 '진짜 예전 기록'을 변수에 따로 백업해 둡니다.
     previous_saved_node = charinfo.last_explore_node_id
 
-    # 🛠️ [해결] 활력(Energy) 차감 및 아이템 획득 로직 (중복 실행 방지)
+    # 🛠️ 활력(Energy) 차감 및 아이템 획득 로직 (중복 실행 방지)
     # 진짜로 노드가 변경되었을 때만 실행합니다.
     if previous_saved_node != node_id_str:
         
@@ -139,10 +150,9 @@ def play_node(request, map_id, node_id):
                 inv.quantity += 1
                 inv.save()
 
-    # 🛠️ [해결] 진행 상황 저장 통일 및 27번 노드 예외 처리
-    # 현재 노드가 '27'번이 아닐 때만 데이터베이스를 전면 갱신합니다.
-    # 이렇게 해야 다른 곳에 갔다와도 예전 기록(예: 108)이 유지되어 팝업창이 뜹니다!
-    if node_id_str != '27':
+    # 🛠️ 진행 상황 저장 통일 및 각 맵별 시작 노드 예외 처리
+    # 현재 노드가 해당 맵의 시작 노드가 아닐 때만 데이터베이스를 전면 갱신합니다.
+    if node_id_str != start_node_id:
         charinfo.last_explore_map_id = map_id
         charinfo.last_explore_node_id = node_id_str
         charinfo.save()
@@ -191,11 +201,11 @@ def play_node(request, map_id, node_id):
         'node_data': node_custom_data, 
         'choices': choices,
         'character': character,
-        # 🛠️ 템플릿에는 아까 백업해 둔 '진짜 예전 기록'을 넘겨주어야 자바스크립트가 인지합니다!
         'last_node_id': previous_saved_node,
-        
-        # 🛠️ [최적화 추가] 템플릿에서 쉽게 분기하고 가져다 쓸 수 있도록 이미지 파일명을 담아 보냅니다.
         'bg_img_name': bg_img_name,
         'speaker_img_name': speaker_img_name,
+        
+        # 🛠️ 자바스크립트가 동적으로 시작 노드를 인지할 수 있도록 보냅니다.
+        'start_node_id': start_node_id, 
     }
     return render(request, 'exploration/play.html', context)

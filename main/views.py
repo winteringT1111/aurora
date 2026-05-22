@@ -161,7 +161,7 @@ def supply(request):
     today_date = current_time.date()
     
     if request.method == "POST":
-        if 0 <= current_hour < 20:
+        if 6 <= current_hour < 20:
             if charinfo.attendance_date == today_date:
                 show_modal = "modal2"
                 modal_message = "이미 오늘의 보급을 수령했습니다."
@@ -170,8 +170,11 @@ def supply(request):
             else:
                 # 1. 기본 재화 지급 (골드 추가 및 에너지 100으로 MAX 충전)
                 userinfo.gold += 100 
-                userinfo.energy = 100  # 💡 에너지를 최대치(100)로 꽉 채워줍니다.
-                userinfo.save()        # 💡 [중요] 변경된 캐릭터 정보를 DB에 저장!
+                if userinfo.energy > 200:
+                    pass
+                else:
+                    userinfo.energy = 200  # 💡 에너지를 최대치(100)로 꽉 채워줍니다.
+                    userinfo.save()        # 💡 [중요] 변경된 캐릭터 정보를 DB에 저장!
                 
                 # 2. 랜덤 아이템 지급 로직
                 items = Item.objects.all()
