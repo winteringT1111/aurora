@@ -7,6 +7,40 @@ from .models import ExplorationMap
 from main.models import Item, Inventory
 from users.models import CharInfo
 
+
+@login_required(login_url='/login')
+def play_main(request):
+    user = request.user
+    
+    # 🛠️ [안전장치 추가] get 대신 filter().first()를 사용하여 데이터가 없어도 에러가 나지 않게 합니다.
+    charinfo = CharInfo.objects.filter(user=user).first()
+    
+    # 만약 로그인한 유저의 CharInfo 데이터가 아예 없다면 예외 처리
+    if charinfo:
+        character = charinfo.char
+    else:
+        character = None
+        # 필요하다면 messages.warning(request, "캐릭터 정보가 존재하지 않습니다.") 등을 넣을 수 있습니다.
+    
+    # DB에 등록된 모든 탐색 맵을 가져옵니다 (발테리온-수도, 왕도 등)
+    maps = ExplorationMap.objects.all().order_by('id')
+    
+    # 각 맵 ID별 시작 노드 번호 매핑
+    START_NODES = {
+        1: '27',  # 1번 맵의 시작 노드는 27
+        2: '1',   # 2번 맵의 시작 노드는 1
+    }
+    
+    for emap in maps:
+        emap.start_node = START_NODES.get(emap.id, '1')
+
+    context = {
+        'maps': maps,
+        'character': character, # 이제 데이터가 없어도 None으로 안전하게 패스됩니다.
+    }
+    return render(request, 'exploration/play_main.html', context)
+
+
 # 1. 맵 에디터 페이지
 def map_editor(request, map_id):
     map_obj = get_object_or_404(ExplorationMap, id=map_id)
