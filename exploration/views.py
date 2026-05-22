@@ -77,8 +77,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from .models import ExplorationMap, CharInfo  # 필요한 모델들을 임포트하세요
-from member.models import Item, Inventory    # 아이템 및 인벤토리 모델 경로 확인
 
 @login_required(login_url='/login')
 def play_node(request, map_id, node_id):
