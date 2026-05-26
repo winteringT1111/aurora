@@ -28,3 +28,49 @@
     </div>
 
 </div>
+
+
+
+
+
+<div id="itemUseActionModal" class="custom-modal" style="display: none; z-index: 1001;">
+    <div class="modal-box" style="width: 420px; background: #fcfbf6; border: 2px solid #ba9e7a;">
+        <span class="modal-close" onclick="closeModal('itemUseActionModal')">&times;</span>
+        <h2 id="actionModalTitle" class="modal-title" style="color: #8c2323;">아이템 사용 설정</h2>
+        <div id="actionModalDesc" style="font-size: 0.9rem; color: #8c7e6c; text-align: center; margin-bottom: 20px;"></div>
+
+        <div id="wrap-reallocate" class="use-action-wrap" style="display: none;">
+            <div style="text-align: center; font-weight: bold; margin-bottom: 15px; color: #615848;">
+                남은 사용 가능 포인트: <span id="reallocate-points-left" style="color: #8c2323; font-size: 1.2rem;">0</span> / <span id="reallocate-points-total">0</span>
+            </div>
+            <div id="reallocate-stat-list" style="display: flex; flex-direction: column; gap: 10px;">
+                </div>
+        </div>
+
+        <div id="wrap-awaken" class="use-action-wrap" style="display: none;">
+            <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #615848;">✦ 영구히 5를 상승시킬 스탯 하나를 선택하세요</label>
+            <div id="awaken-stat-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                </div>
+        </div>
+
+        <div id="wrap-plunder" class="use-action-wrap" style="display: none;">
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #615848;">🔒 약탈할 상대 대상</label>
+                <select id="plunderTarget" class="modal-input" style="width: 100%; box-sizing: border-box;">
+                    <option value="">대상을 선택해 주세요</option>
+                    {% for char_item in characters %}
+                        {% if char_item.id != character.id %} <option value="{{ char_item.id }}">{{ char_item.name_kr }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #615848;">🔒 대상에게서 5를 빼앗아올 스탯 종류</label>
+            <div id="plunder-stat-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                </div>
+        </div>
+
+        <button class="modal-btn" style="width: 100%; margin-top: 25px; background: #8c2323; color: white;" onclick="submitItemUseAction()">
+            ✦ 효과 확정 및 저장
+        </button>
+    </div>
+</div>

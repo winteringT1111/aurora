@@ -14,4 +14,5 @@ urlpatterns = [
     path('giftbox/claim/', views.claim_gift, name='claim_gift'),
     path('store/buy/', views.buy_item, name='buy_item'),
     path('store/gift/', views.gift_item, name='gift_item'),
+    path('inventory/use/', views.use_item_view, name='use_item'),  # name 확인
 ]

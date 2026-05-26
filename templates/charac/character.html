@@ -41,8 +41,13 @@
         <input type="hidden" id="modalItemId">
 
         {% if is_own_profile %}
-        
-            <button class="modal-btn" onclick="openTransferModal()">양도</button>
+            <div class="modal-btn-group" style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="modal-btn" onclick="openTransferModal()" style="flex: 1;">양도</button>
+                
+                <button id="modalUseBtn" class="modal-btn use-btn" onclick="useInventoryItem()" style="flex: 1; background: #8c2323; color: white; display: none;">
+                    사용
+                </button>
+            </div>
         {% endif %}
     </div>
 </div>
@@ -222,92 +227,66 @@
 </div>
 
 
+
+
+
 <script>
-    // 💡 탭을 전환하는 자바스크립트 함수
-    function switchTab(targetTabId, clickedIcon) {
-        // 1. 모든 탭 아이콘의 불을 끕니다 (active 클래스 제거)
-        const allIcons = document.querySelectorAll('.tab-icon');
-        allIcons.forEach(icon => {
-            icon.classList.remove('active');
-        });
+const RECIPIENT_LIST = [
+    {% for recipient in recipient_list %}
+        { id: "{{ recipient.id }}", name: "{{ recipient.name_kr }}" },
+    {% endfor %}
+];
 
-        // 2. 방금 클릭한 아이콘에만 불을 켭니다 (active 클래스 추가)
-        clickedIcon.classList.add('active');
+function switchTab(targetTabId, clickedIcon) {
+    document.querySelectorAll('.tab-icon').forEach(icon => icon.classList.remove('active'));
+    clickedIcon.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    const targetContent = document.getElementById(targetTabId);
+    if (targetContent) targetContent.classList.add('active');
+}
 
-        // 3. 모든 탭 콘텐츠 영역을 숨깁니다
-        const allContents = document.querySelectorAll('.tab-content');
-        allContents.forEach(content => {
-            content.classList.remove('active');
-        });
+function openItemModal(id, name, category, desc, imgUrl, quantity) {
+    document.getElementById('modalItemId').value = id;
+    document.getElementById('modalItemName').innerText = name;
+    document.getElementById('modalItemTag').innerText = category;
+    document.getElementById('modalItemDesc').innerHTML = desc;
+    document.getElementById('modalItemImg').src = imgUrl;
 
-        // 4. 클릭한 탭에 연결된 콘텐츠 영역만 보여줍니다
-        const targetContent = document.getElementById(targetTabId);
-        if (targetContent) {
-            targetContent.classList.add('active');
-        }
+    currentSelectedItemId = id;
+
+    const useBtn = document.getElementById('modalUseBtn');
+    if (useBtn) {
+        const usableItems = ["성해의 파편수", "각성의 결정", "약탈의 낙인석"];
+        useBtn.style.display = usableItems.includes(name) ? "block" : "none";
     }
 
-    // ==========================================
-    // 인벤토리 팝업 관련 자바스크립트
-    // ==========================================
+    document.getElementById('itemModal').style.display = 'flex';
+}
 
-    // 1. 아이템 상세 모달 열기
-    function openItemModal(id,name, tag, desc, imgSrc, qty) {
-        // 데이터 채우기
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    const useBtn = document.getElementById('modalUseBtn');
+    if (useBtn) useBtn.style.display = "none";
+}
 
-        // 💡 [핵심] 방금 만든 숨겨진 주머니(input)에 클릭한 아이템의 id를 몰래 넣습니다.
-    const idInput = document.getElementById('modalItemId');
-    if (idInput) {
-        idInput.value = id; 
-    }
-    
-        document.getElementById('modalItemName').textContent = name;
-        document.getElementById('modalItemTag').textContent = tag;
-        document.getElementById('modalItemDesc').textContent = desc;
-        document.getElementById('modalItemImg').src = imgSrc;
-        
-        // 양도 창을 위해 이름 임시 저장
-        document.getElementById('transferItemName').textContent = name;
-        document.getElementById('transferQty').max = qty; // 최대 수량 지정
-        document.getElementById('transferQty').value = 1;
+function openTransferModal() {
+    closeModal('itemModal');
+    const transferModal = document.getElementById('transferModal');
+    transferModal.classList.add('no-bg-anim');
+    transferModal.style.display = 'flex';
+}
 
-        // 모달 띄우기
-        document.getElementById('itemModal').classList.add('show');
-    }
-
-    // 2. 모달 닫기 공통 함수
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('show');
-    }
-
-    // 3. 아이템 상세 창에서 '양도' 버튼 눌렀을 때
-    // 3. 아이템 상세 창에서 '양도' 버튼 눌렀을 때
-    function openTransferModal() {
-        closeModal('itemModal'); // 상세 창 닫기
-        
-        const transferModal = document.getElementById('transferModal');
-        
-        // 💡 핵심: 깜빡임 방지 클래스를 먼저 붙인 뒤에 창을 엽니다.
-        transferModal.classList.add('no-bg-anim');
-        transferModal.classList.add('show');
-        
-       
-    }
-
-    
-// 4. 최종 '양도하기' 버튼 눌렀을 때 (fetch API 전송)
 function submitTransfer() {
     const recipientId = document.getElementById('transferRecipient').value;
     const qty = document.getElementById('transferQty').value;
     const itemId = document.getElementById('modalItemId').value;
     const message = document.getElementById('transferMsg').value;
 
-    if(!recipientId) {
+    if (!recipientId) {
         alert("받는 사람을 선택해 주세요.");
         return;
     }
 
-    // 💡 복잡한 getCookie 함수 대신, 장고 템플릿 문법으로 바로 토큰을 가져옵니다!
     const csrftoken = '{{ csrf_token }}';
 
     fetch('{% url "member:transfer_item" %}', {
@@ -325,9 +304,9 @@ function submitTransfer() {
     })
     .then(response => response.json())
     .then(data => {
-        if(data.success) {
+        if (data.success) {
             alert(data.msg);
-            location.reload(); // 성공 시 새로고침
+            location.reload();
         } else {
             alert("양도 실패: " + data.msg);
         }
@@ -335,146 +314,215 @@ function submitTransfer() {
     .catch(error => console.error('Error:', error));
 }
 
+window.onclick = function(event) {
+    const itemModal = document.getElementById('itemModal');
+    const transferModal = document.getElementById('transferModal');
+    if (event.target == itemModal) closeModal('itemModal');
+    if (event.target == transferModal) closeModal('transferModal');
+}
+</script>
 
-    // 💡 꿀팁: 모달 바깥의 어두운 배경을 클릭해도 닫히게 만들기
-    window.onclick = function(event) {
-        const itemModal = document.getElementById('itemModal');
-        const transferModal = document.getElementById('transferModal');
-        if (event.target == itemModal) closeModal('itemModal');
-        if (event.target == transferModal) closeModal('transferModal');
+
+
+
+
+
+
+
+
+<script>
+const CURRENT_CHARACTER_STATS = {
+    stat_str: parseInt("{{ char.stat_str|default:1 }}"),
+    stat_agi: parseInt("{{ char.stat_agi|default:1 }}"),
+    stat_int: parseInt("{{ char.stat_int|default:1 }}"),
+    stat_luk: parseInt("{{ char.stat_luk|default:1 }}"),
+    stat_rep: parseInt("{{ char.stat_rep|default:1 }}"),
+    stat_good: parseInt("{{ char.stat_good|default:1 }}"),
+    stat_mag: parseInt("{{ char.stat_mag|default:1 }}"),
+    stat_div: parseInt("{{ char.stat_div|default:1 }}")
+};
+
+const STAT_LABELS = {
+    stat_str: '근력 (STR)', stat_agi: '민첩 (AGI)', stat_int: '지능 (INT)', stat_luk: '행운 (LUK)',
+    stat_rep: '평판 (REP)', stat_good: '선의 (GOOD)', stat_mag: '마력 (MAG)', stat_div: '신성력 (DIV)'
+};
+
+let currentItemName = "";
+let totalStatPoints = 0;
+let reallocatedStats = {};
+
+// ✅ getCsrfToken 추가
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'csrftoken') return decodeURIComponent(value);
     }
-</script>
+    return '';
+}
 
+function useInventoryItem() {
+    currentItemName = document.getElementById('modalItemName').innerText;
+    document.getElementById('itemModal').style.display = 'none';
+    document.querySelectorAll('.use-action-wrap').forEach(el => el.style.display = 'none');
 
+    const actionModal = document.getElementById('itemUseActionModal');
+    document.getElementById('actionModalTitle').innerText = `✦ ${currentItemName} 사용`;
 
+    if (currentItemName === "성해의 파편수") {
+        document.getElementById('actionModalDesc').innerText = "현재 투자된 스탯 총합 포인트 내에서 스탯을 재배분합니다. (모든 스탯 최소 1)";
+        document.getElementById('wrap-reallocate').style.display = 'block';
+        totalStatPoints = Object.values(CURRENT_CHARACTER_STATS).reduce((a, b) => a + b, 0);
+        document.getElementById('reallocate-points-total').innerText = totalStatPoints;
+        reallocatedStats = { ...CURRENT_CHARACTER_STATS };
+        renderReallocateInterface();
 
-
-
-
-
-
-
-
-    <script>
-document.addEventListener('DOMContentLoaded', () => {
-        const audio = document.getElementById('background-music');
-        const playPauseButton = document.getElementById('play-pause-button');
-        const status = document.getElementById('status');
-        const toStart = document.getElementById('to-start-button');
-        
-        let isPlaying = false;
-
-        // 1. 기본 브금 주소 설정
-        const defaultSource = "{% static 'bgm2.mp3' %}";
-        let targetSource = defaultSource;
-
-        const userBox = document.getElementById('profile_music');
-        const currentSourceElement = audio.querySelector('source');
-
-        // 2. [핵심] 캐릭터 파일이 실제로 존재하는지 비동기로 검사하는 함수
-        const checkAndInitAudio = async () => {
-            if (userBox && userBox.getAttribute('data-music')) {
-                const musicFile = userBox.getAttribute('data-music');
-                const testSource = `{% static 'audio/' %}${musicFile}`;
-
-                try {
-                    // 서버에 해당 .mp3 파일이 진짜 있는지 살짝 찔러봅니다 (헤더만 가볍게 확인)
-                    const response = await fetch(testSource, { method: 'HEAD' });
-                    if (response.ok) {
-                        // 🛠️ 파일이 존재하면 캐릭터 전용 브금으로 채택!
-                        targetSource = testSource;
-                    } else {
-                        console.log(`🎵 캐릭터 브금(${musicFile})이 폴더에 없어 기본 브금으로 대체합니다.`);
-                    }
-                } catch (e) {
-                    console.error("오디오 파일 검사 중 오류 발생:", e);
-                }
-            }
-
-            // 3. 소스가 바뀔 때만 리로드하고 재생 시간 초기화
-            const tempAnchor = document.createElement('a');
-            tempAnchor.href = targetSource;
-            
-            if (currentSourceElement.src !== tempAnchor.href) {
-                currentSourceElement.src = targetSource;
-                audio.load();
-                localStorage.removeItem('audio-currentTime');
-            }
-
-            // 소스 결정이 완전히 끝난 후 오디오 상태 복원 및 재생 시작
-            restoreAudioTime();
-            if (localStorage.getItem('audio-isPlaying') === 'true' || targetSource !== defaultSource) {
-                playAudio();
-            }
-        };
-
-        // 3. 오디오 시간 복원 함수
-        const restoreAudioTime = () => {
-            const savedTime = localStorage.getItem('audio-currentTime');
-            if (savedTime && audio.currentTime === 0) {
-                audio.currentTime = parseFloat(savedTime);
-            }
-        };
-
-        // 4. 음악 재생 함수 (브라우저 정책 우회 포함)
-        const playAudio = () => {
-            restoreAudioTime();
-            
-            audio.play().then(() => {
-                isPlaying = true;
-                status.classList = 'fa-solid fa-pause';
-                localStorage.setItem('audio-isPlaying', 'true');
-            }).catch(error => {
-                console.log('브라우저 정책으로 자동 재생이 대기 중입니다. (클릭 시 재생)');
-                isPlaying = false;
-                status.classList = 'fa-solid fa-play';
-            });
-        };
-
-        // 5. 페이지 이동 후 유저가 '첫 클릭'을 하는 순간 자연스럽게 이어가기
-        const handleFirstInteract = () => {
-            const savedIsPlaying = localStorage.getItem('audio-isPlaying');
-            if ((savedIsPlaying === 'true' || targetSource !== defaultSource) && audio.paused) {
-                playAudio();
-            }
-            document.removeEventListener('click', handleFirstInteract);
-        };
-        document.addEventListener('click', handleFirstInteract);
-
-        // 오디오 컨트롤 버튼 리스너들
-        playPauseButton.addEventListener('click', () => {
-            if (audio.paused) {
-                playAudio();
-            } else {
-                audio.pause();
-                isPlaying = false;
-                status.classList = 'fa-solid fa-play';
-                localStorage.setItem('audio-isPlaying', 'false');
-            }
+    } else if (currentItemName === "각성의 결정") {
+        document.getElementById('actionModalDesc').innerText = "영구히 축복을 내릴 스탯 특성 하나를 선택하세요 (+5)";
+        document.getElementById('wrap-awaken').style.display = 'block';
+        const listDiv = document.getElementById('awaken-stat-list');
+        listDiv.innerHTML = "";
+        Object.keys(CURRENT_CHARACTER_STATS).forEach(key => {
+            listDiv.innerHTML += `
+                <label style="background:#ebe8de;padding:10px;border-radius:4px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="radio" name="awakenStat" value="${key}">
+                    <span style="font-size:0.9rem;font-weight:bold;">${STAT_LABELS[key]}</span>
+                </label>`;
         });
 
-        toStart.addEventListener('click', () => {
-            audio.currentTime = 0;
-            playAudio();
-        });
+    } else if (currentItemName === "약탈의 낙인석") {
+    document.getElementById('actionModalDesc').innerText = "낙인을 새길 상대방을 선택하고 빼앗아올 스탯 종류를 결정하세요. (내 스탯+5 / 상대스탯-5)";
+    document.getElementById('wrap-plunder').style.display = 'block';
 
-        // 1초 주기로 현재 진행 시간 동기화
-        setInterval(() => {
-            if (!audio.paused) {
-                localStorage.setItem('audio-currentTime', audio.currentTime);
-            }
-        }, 1000);
-
-        window.addEventListener('beforeunload', () => {
-            if (!audio.paused) {
-                localStorage.setItem('audio-currentTime', audio.currentTime);
-            }
-        });
-
-        checkAndInitAudio();
+    // ✅ RECIPIENT_LIST로 select 채우기
+    const plunderTarget = document.getElementById('plunderTarget');
+    plunderTarget.innerHTML = '<option value="">-- 캐릭터 선택 --</option>';
+    RECIPIENT_LIST.forEach(r => {
+        plunderTarget.innerHTML += `<option value="${r.id}">${r.name}</option>`;
     });
+
+    const listDiv = document.getElementById('plunder-stat-list');
+    listDiv.innerHTML = "";
+    Object.keys(CURRENT_CHARACTER_STATS).forEach(key => {
+        listDiv.innerHTML += `
+            <label style="background:#ebe8de;padding:10px;border-radius:4px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="plunderStat" value="${key}">
+                <span style="font-size:0.9rem;font-weight:bold;">${STAT_LABELS[key]}</span>
+            </label>`;
+    });
+}
+
+    actionModal.style.display = 'flex';
+}
+
+function renderReallocateInterface() {
+    const listContainer = document.getElementById('reallocate-stat-list');
+    listContainer.innerHTML = "";
+    const currentUsedSum = Object.values(reallocatedStats).reduce((a, b) => a + b, 0);
+    document.getElementById('reallocate-points-left').innerText = totalStatPoints - currentUsedSum;
+
+    Object.keys(reallocatedStats).forEach(key => {
+        listContainer.innerHTML += `
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#ebe8de;padding:8px 12px;border-radius:4px;">
+                <span style="font-weight:bold;font-size:0.95rem;">${STAT_LABELS[key]}</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <button class="qty-btn" style="width:25px;height:25px;padding:0;" onclick="adjustReallocateStat('${key}', -1)">-</button>
+                    <!-- ✅ 직접 입력 가능한 input -->
+                    <input 
+                        type="number" 
+                        id="reallocate-input-${key}"
+                        value="${reallocatedStats[key]}" 
+                        min="1"
+                        style="width:50px;text-align:center;font-weight:bold;font-size:1rem;border:1px solid #ccc;border-radius:4px;padding:2px;"
+                        onchange="setReallocateStat('${key}', this.value)"
+                    >
+                    <button class="qty-btn" style="width:25px;height:25px;padding:0;" onclick="adjustReallocateStat('${key}', 1)">+</button>
+                </div>
+            </div>`;
+    });
+}
+
+// ✅ 직접 입력 처리 함수 추가
+function setReallocateStat(statKey, inputVal) {
+    const newVal = parseInt(inputVal);
+    if (isNaN(newVal) || newVal < 1) {
+        alert("최소 1 이상 입력해주세요!");
+        document.getElementById(`reallocate-input-${statKey}`).value = reallocatedStats[statKey];
+        return;
+    }
+
+    const currentUsedSum = Object.values(reallocatedStats).reduce((a, b) => a + b, 0);
+    const diff = newVal - reallocatedStats[statKey];
+
+    if (currentUsedSum + diff > totalStatPoints) {
+        alert(`잔여 포인트(${totalStatPoints - currentUsedSum})를 초과할 수 없습니다!`);
+        document.getElementById(`reallocate-input-${statKey}`).value = reallocatedStats[statKey];
+        return;
+    }
+
+    reallocatedStats[statKey] = newVal;
+    renderReallocateInterface();
+}
+
+function adjustReallocateStat(statKey, amount) {
+    const currentUsedSum = Object.values(reallocatedStats).reduce((a, b) => a + b, 0);
+    if (amount > 0 && currentUsedSum >= totalStatPoints) {
+        alert("잔여 배분 포인트가 부족합니다!"); return;
+    }
+    if (amount < 0 && reallocatedStats[statKey] <= 1) {
+        alert("모든 스탯의 최솟값은 1입니다!"); return;
+    }
+    reallocatedStats[statKey] += amount;
+    renderReallocateInterface(); // 전체 재렌더링으로 input도 자동 업데이트
+}
+
+function submitItemUseAction() {
+    let payload = { item_id: currentSelectedItemId, item_name: currentItemName };
+
+    if (currentItemName === "성해의 파편수") {
+        const currentUsedSum = Object.values(reallocatedStats).reduce((a, b) => a + b, 0);
+        if (currentUsedSum !== totalStatPoints) {
+            alert(`남김없이 정확히 총 ${totalStatPoints} 포인트를 전부 배분하셔야 합니다! (현재 ${currentUsedSum} 배분됨)`);
+            return;
+        }
+        payload.reallocated_stats = reallocatedStats;
+
+    } else if (currentItemName === "각성의 결정") {
+        const selectedRadio = document.querySelector('input[name="awakenStat"]:checked');
+        if (!selectedRadio) { alert("상승시킬 스탯을 하나 골라주세요!"); return; }
+        payload.target_stat = selectedRadio.value;
+
+    } else if (currentItemName === "약탈의 낙인석") {
+        const targetSelect = document.getElementById('plunderTarget').value;
+        const selectedRadio = document.querySelector('input[name="plunderStat"]:checked');
+        if (!targetSelect) { alert("약탈할 상대 대상을 선택해 주세요!"); return; }
+        if (!selectedRadio) { alert("강탈해 올 스탯 종류를 골라주세요!"); return; }
+        payload.target_character_id = targetSelect;
+        payload.target_stat = selectedRadio.value;
+    }
+
+    fetch("/inventory/use/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCsrfToken()  // ✅ 버그 수정
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert(`✅ 적용 완료: ${data.message}`);
+            location.reload();
+        } else {
+            alert(`❌ 적용 실패: ${data.message}`);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("⚠️ 데이터 전송 중 서버 오류가 발생했습니다.");
+    });
+}
 </script>
-
-
 
 {% endblock %}

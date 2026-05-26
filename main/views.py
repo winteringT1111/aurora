@@ -427,3 +427,121 @@ def claim_gift(request):
         return JsonResponse({'success': False, 'msg': '이미 수령했거나 존재하지 않는 선물입니다.'})
     except Exception as e:
         return JsonResponse({'success': False, 'msg': str(e)})
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@login_required
+@require_POST
+def use_item_view(request):
+    try:
+        data = json.loads(request.body)
+        item_id = data.get('item_id')
+        item_name = data.get('item_name')
+        
+        user = request.user
+        charinfo = CharInfo.objects.get(user=user)
+        character = charinfo.char  # 내 캐릭터 스탯 모델 객체
+
+        # 1. 수량 검증 검사
+        inv_item = Inventory.objects.filter(user=user, item_id=item_id, quantity__gt=0).first()
+        if not inv_item:
+            return JsonResponse({'success': False, 'message': '인벤토리에 해당 아이템 수량이 부족합니다.'})
+
+        # ========================================================
+        # 💡 1. 성해의 파편수 처리
+        # ========================================================
+        if item_name == "성해의 파편수":
+            reallocated = data.get('reallocated_stats')
+            if not reallocated:
+                return JsonResponse({'success': False, 'message': '재분배된 스탯 데이터가 누락되었습니다.'})
+            
+            # 원래 가지고 있던 원본 총합 스탯 검증 검사 (치트 방지)
+            original_total = (character.stat_str + character.stat_agi + character.stat_int + character.stat_luk +
+                              character.stat_rep + character.stat_good + character.stat_mag + character.stat_div)
+            
+            new_total = sum(int(v) for v in reallocated.values())
+            if original_total != new_total:
+                return JsonResponse({'success': False, 'message': '포인트 변조가 감지되었습니다. 총합이 일치하지 않습니다.'})
+
+            for k, v in reallocated.items():
+                if int(v) < 1:
+                    return JsonResponse({'success': False, 'message': '모든 스탯의 최솟값은 1입니다.'})
+
+            # 검증 통과 시 일괄 주입
+            character.stat_str = reallocated['stat_str']
+            character.stat_agi = reallocated['stat_agi']
+            character.stat_int = reallocated['stat_int']
+            character.stat_luk = reallocated['stat_luk']
+            character.stat_rep = reallocated['stat_rep']
+            character.stat_good = reallocated['stat_good']
+            character.stat_mag = reallocated['stat_mag']
+            character.stat_div = reallocated['stat_div']
+            character.save()
+
+        # ========================================================
+        # 💡 2. 각성의 결정 처리
+        # ========================================================
+        elif item_name == "각성의 결정":
+            target_stat = data.get('target_stat')
+            if not target_stat or not hasattr(character, target_stat):
+                return JsonResponse({'success': False, 'message': '올바른 타겟 스탯을 선택하지 않았습니다.'})
+            
+            # 스탯 5 가산
+            current_val = getattr(character, target_stat, 0)
+            setattr(character, target_stat, current_val + 5)
+            character.save()
+
+        # ========================================================
+        # 💡 3. 약탈의 낙인석 처리
+        # ========================================================
+        elif item_name == "약탈의 낙인석":
+            target_char_id = data.get('target_character_id')
+            target_stat = data.get('target_stat')
+            
+            if not target_char_id or not target_stat:
+                return JsonResponse({'success': False, 'message': '약탈 대상 또는 스탯 특성이 누락되었습니다.'})
+            
+            target_character = Character.objects.filter(id=target_char_id).first()
+            if not target_character:
+                return JsonResponse({'success': False, 'message': '약탈 대상을 데이터베이스에서 찾을 수 없습니다.'})
+            
+            # 대상의 스탯이 최소 5 초과는 되어야 뺏을 수 있도록 안전장치 확인 (스탯이 음수가 되는 방지)
+            target_val = getattr(target_character, target_stat, 0)
+            if target_val < 5:
+                return JsonResponse({'success': False, 'message': f'대상의 {target_stat} 스탯 수치가 5 미만이라 각인석 약탈이 불가능합니다.'})
+            
+            # 양방향 정산 실행
+            setattr(target_character, target_stat, target_val - 5)
+            setattr(character, target_stat, getattr(character, target_stat, 0) + 5)
+            
+            target_character.save()
+            character.save()
+            
+            msg = f"{target_character.name_kr}님의 영혼에서 스탯 특성을 5 강탈하여 내 스탯으로 동기화했습니다."
+            inv_item.quantity -= 1
+            inv_item.save()
+            return JsonResponse({'success': True, 'message': msg})
+
+        else:
+            return JsonResponse({'success': False, 'message': '알 수 없는 아이템 형식 규칙입니다.'})
+
+        # 공용 처리: 수량 1개 정직하게 차감 후 저장
+        inv_item.quantity -= 1
+        inv_item.save()
+        return JsonResponse({'success': True, 'message': f'[{item_name}] 사용이 완료되어 효과가 영구히 귀속되었습니다!'})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': f'서버 연산 치명적 실패: {str(e)}'})
