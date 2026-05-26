@@ -27,6 +27,16 @@
         <link rel="shortcut icon" href="{% static 'favicon.ico' %}" />
         {% block head %}
 	    {% endblock %}
+
+        <style>
+            /* base.css 또는 base.html <style>에 추가 */
+            #main-content {
+                transition: opacity 0.2s ease;
+            }
+            #main-content.loading {
+                opacity: 0;
+            }
+        </style>
     </head>
     <body>
 
@@ -152,9 +162,12 @@ const checkProfileMusic = () => {
 
     audio.addEventListener('timeupdate', saveAudioState);
 
-    // ✅ SPA 네비게이션
-    const navigateTo = async (url) => {
+ const navigateTo = async (url) => {
     try {
+        // ✅ 서서히 사라지기
+        mainContent.classList.add('loading');
+        await new Promise(resolve => setTimeout(resolve, 200)); // 트랜지션 끝날 때까지 대기
+
         const res = await fetch(url, {
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
@@ -163,60 +176,79 @@ const checkProfileMusic = () => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        // ✅ 기존 동적 CSS 제거
-        document.querySelectorAll('link[data-dynamic="true"]').forEach(l => l.remove());
+        document.querySelectorAll('style[data-dynamic="true"]').forEach(l => l.remove());
 
-        // ✅ 새 CSS 주입 + 로드 대기
         const baseCSS = ['bootstrap', 'font-awesome', 'fonts.googleapis', 'base.css', 'snow_reverse.css'];
         const linkPromises = [];
 
         doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
             const href = link.getAttribute('href');
+            if (!href) return;
             if (baseCSS.some(name => href.includes(name))) return;
+            if (document.querySelector(`link[data-href="${href}"]`)) return;
 
             const newLink = document.createElement('link');
             newLink.rel = 'stylesheet';
-            newLink.href = href + '?t=' + Date.now(); // 캐시 무력화
+            newLink.href = href;
             newLink.setAttribute('data-dynamic', 'true');
+            newLink.setAttribute('data-href', href);
 
             linkPromises.push(new Promise(resolve => {
-                newLink.onload = resolve;
-                newLink.onerror = resolve;
+                newLink.addEventListener('load', resolve);
+                newLink.addEventListener('error', resolve);
+                setTimeout(resolve, 2000);
             }));
 
             document.head.appendChild(newLink);
         });
 
-        // ✅ CSS 다 로드된 후 콘텐츠 교체
+        doc.querySelectorAll('style').forEach(style => {
+            const newStyle = document.createElement('style');
+            newStyle.textContent = style.textContent;
+            newStyle.setAttribute('data-dynamic', 'true');
+            document.head.appendChild(newStyle);
+        });
+
         await Promise.all(linkPromises);
 
-        mainContent.innerHTML = doc.getElementById('main-content')?.innerHTML || html;
+        const newContent = doc.getElementById('main-content');
+        if (newContent) {
+            mainContent.innerHTML = newContent.innerHTML;
+        } else {
+            window.location.href = url;
+            return;
+        }
+
         window.history.pushState({}, '', url);
 
-        // ✅ 인라인 script 실행
         mainContent.querySelectorAll('script:not([src])').forEach(old => {
             const s = document.createElement('script');
             s.textContent = old.textContent;
             old.replaceWith(s);
         });
 
-        // ✅ 외부 script 순서대로 로드
-        const loadScript = (script) => new Promise((resolve) => {
+        const loadScript = (src) => new Promise((resolve) => {
             const s = document.createElement('script');
-            s.src = script.getAttribute('src') + '?t=' + Date.now();
+            s.src = src;
             s.onload = resolve;
             s.onerror = resolve;
-            script.replaceWith(s);
+            document.body.appendChild(s);
         });
 
         for (const script of [...mainContent.querySelectorAll('script[src]')]) {
-            await loadScript(script);
+            const src = script.getAttribute('src');
+            script.remove();
+            await loadScript(src);
         }
 
         checkProfileMusic();
 
+        // ✅ 서서히 나타나기
+        mainContent.classList.remove('loading');
+
     } catch(e) {
-        console.error(e);
+        console.error('navigateTo 에러:', e);
+        mainContent.classList.remove('loading');
         window.location.href = url;
     }
 };
@@ -236,6 +268,7 @@ const checkProfileMusic = () => {
     });
 
     loadAudioState();
+    mainContent.style.visibility = 'visible';
     checkProfileMusic();
 </script>
 

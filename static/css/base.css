@@ -259,8 +259,7 @@ margin-bottom: -3px;
 } .audio-controls {
     display: flex;
     cursor: default;
-    position: absolute;
-    right: 24px;
+    position: fixed;
+    left: 5px;
     margin-top: 5px;
-    text-align: right;
 }

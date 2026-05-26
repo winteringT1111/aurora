@@ -70,10 +70,9 @@
     </div>
 </div>
 
-
 <script>
+(() => {
     document.getElementById('submitAttendance').addEventListener('click', function() {
-        // Send AJAX request to handle attendance
         fetch("{% url 'main:supply' %}", {
             method: "POST",
             headers: {
@@ -81,57 +80,37 @@
             }
         })
         .then(response => response.json())
-        // 기존 fetch 요청 결과 처리 부분 (then 부분)
         .then(data => {
-            // 1. 메시지 제목 넣기
             document.getElementById('modalContent').innerText = data.modal_message;
             
-            // 2. 보상 박스(아이템, 골드 등) 제어
             const rewardContainer = document.getElementById('rewardContainer');
             
             if (data.is_success) {
-                // 성공했다면 보상 상자를 보여주고, 아이템 이미지와 이름을 세팅
                 rewardContainer.style.display = 'flex';
                 document.getElementById('rewardItemName').innerText = data.item_name;
-                
-                // 아이템 이미지 경로 설정 (도트 폴더 경로에 맞게!)
                 const staticPath = "{% static 'img/도트/' %}";
                 document.getElementById('rewardItemImg').src = staticPath + data.item_name + ".png";
             } else {
-                // 실패(시간 외, 이미 수령)라면 보상 상자 숨기기
                 rewardContainer.style.display = 'none';
             }
 
-            // 모달 띄우기
             $('#exampleModal').modal('show');
-        })
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // 기숙사 배경 요소들 선택
-        const attBackgroundElements = document.querySelectorAll('.att_background');
-        
-        // 각 배경에 대해 fadeIn 클래스를 추가하여 애니메이션 실행
-        attBackgroundElements.forEach(function(element) {
-            // 요소를 먼저 visibility를 'visible'로 설정하고, 애니메이션 시작
-            element.style.visibility = 'visible'; 
-            element.classList.add('fadeInDown');  // 'fadeIn' 클래스를 추가해 애니메이션 시작
         });
     });
-    
-    document.addEventListener('DOMContentLoaded', function() {
-    // 대상 요소 선택
+
+    // 애니메이션
+    const attBackgroundElements = document.querySelectorAll('.att_background');
+    attBackgroundElements.forEach(function(element) {
+        element.style.visibility = 'visible';
+        element.classList.add('fadeInDown');
+    });
+
     const bg = document.querySelector('.att_background');
     const content = document.querySelector('.att_content');
     const content2 = document.querySelector('.att_btn');
-
-    // 애니메이션 시작
     bg.classList.add('fadeInUp');
     content.classList.add('fadeInUp');
     content2.classList.add('fadeInUp');
-});
-    
-    
+})();
 </script>
-
 {% endblock %}
