@@ -12,9 +12,9 @@
         
         <div class="inv-grid">
             {% for inven_item in items %}
-                <div class="inv-slot" onclick="openItemModal('{{ inven_item.item.id }}', '{{ inven_item.item.name }}', '{{ inven_item.item.category|default:'미분류' }}', '{{ inven_item.item.description|escapejs }}', '{% static 'img/도트/' %}{{ inven_item.item.name }}.png', {{ inven_item.quantity }})">
+                <div class="inv-slot" onclick="openItemModal('{{ inven_item.item.id }}', '{{ inven_item.item.name }}', '{{ inven_item.item.category|default:'미분류' }}', '{{ inven_item.item.description|escapejs }}', '{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png', {{ inven_item.quantity }})">
                     
-                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name }}.png" alt="{{ inven_item.item.name }}" class="inv-item-img">
+                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png" alt="{{ inven_item.item.name }}" class="inv-item-img">
                     
                     <span class="inv-qty">x{{ inven_item.quantity }}</span>
                     
@@ -24,7 +24,6 @@
                     보유한 아이템이 없습니다.
                 </div>
             {% endfor %}
-            
         </div>
     </div>
 

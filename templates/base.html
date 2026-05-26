@@ -45,11 +45,199 @@
                     <li><a href="/giftbox"><span class="icon"><i class="fa-regular fa-envelope"></i></span><span class="text">GIFT</span></a></li>
                 </ul>
             </nav>
+            <audio id="background-music" loop>
+                <source id="bgm-source" src="{% static 'bgm2.mp3' %}" type="audio/mpeg">
+            </audio>
+            <div class="audio-controls">
+                <button id="play-pause-button">
+                    <i id="status" class="fa-solid fa-play"></i>
+                </button>
+                <button id="to-start-button">
+                    <i class="fa-solid fa-square"></i>
+                </button>
+            </div>
 
             
-        {% block content %}
-        {% endblock %}
+        <div id="main-content">
+            {% block content %}
+            {% endblock %}
+        </div>
         <script src="{% static 'js/world.js' %}"></script>
+
+        <script>
+    const audio = document.getElementById('background-music');
+    const bgmSource = document.getElementById('bgm-source');
+    const playPauseButton = document.getElementById('play-pause-button');
+    const status = document.getElementById('status');
+    const toStart = document.getElementById('to-start-button');
+    const mainContent = document.getElementById('main-content');
+
+    let isPlaying = false;
+
+    const playAudio = () => {
+        audio.play().then(() => {
+            isPlaying = true;
+            status.className = 'fa-solid fa-pause';
+        }).catch(err => console.log('Autoplay failed.', err));
+    };
+
+    const saveAudioState = () => {
+        localStorage.setItem('audio-currentTime', audio.currentTime);
+        localStorage.setItem('audio-isPlaying', isPlaying);
+    };
+
+    const loadAudioState = () => {
+        const savedTime = localStorage.getItem('audio-currentTime');
+        const savedIsPlaying = localStorage.getItem('audio-isPlaying');
+        if (savedTime) audio.currentTime = parseFloat(savedTime);
+        if (savedIsPlaying === 'true') playAudio();
+    };
+
+    const DEFAULT_BGM = "{% static 'bgm2.mp3' %}";
+
+const checkProfileMusic = () => {
+    const userBox = document.getElementById('profile_music');
+    const musicFile = userBox ? userBox.getAttribute('data-music') : null;
+
+    if (musicFile) {
+        // 캐릭터 전용 브금 시도
+        const newSrc = "{% static 'audio/' %}" + musicFile;
+
+        // 이미 같은 곡이면 스킵
+        if (bgmSource.src.endsWith(musicFile)) return;
+
+        // 파일 존재 여부 확인 후 재생
+        fetch(newSrc, { method: 'HEAD' })
+            .then(res => {
+                if (res.ok) {
+                    // 파일 있으면 캐릭터 브금으로 교체
+                    bgmSource.src = newSrc;
+                } else {
+                    // 파일 없으면 기본 브금으로
+                    bgmSource.src = DEFAULT_BGM;
+                }
+                audio.load();
+                if (isPlaying) playAudio();
+            })
+            .catch(() => {
+                bgmSource.src = DEFAULT_BGM;
+                audio.load();
+                if (isPlaying) playAudio();
+            });
+    } else {
+        // profile_music 없는 페이지면 기본 브금으로 복귀
+        if (bgmSource.src.endsWith('bgm2.mp3')) return; // 이미 기본 브금이면 스킵
+        bgmSource.src = DEFAULT_BGM;
+        audio.load();
+        if (isPlaying) playAudio();
+    }
+};
+
+    playPauseButton.addEventListener('click', () => {
+        if (audio.paused) {
+            playAudio();
+        } else {
+            audio.pause();
+            isPlaying = false;
+            status.className = 'fa-solid fa-play';
+        }
+        saveAudioState();
+    });
+
+    toStart.addEventListener('click', () => {
+        audio.currentTime = 0;
+        if (!isPlaying) playAudio();
+        saveAudioState();
+    });
+
+    audio.addEventListener('timeupdate', saveAudioState);
+
+    // ✅ SPA 네비게이션
+    const navigateTo = async (url) => {
+    try {
+        const res = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const html = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // ✅ 기존 동적 CSS 제거
+        document.querySelectorAll('link[data-dynamic="true"]').forEach(l => l.remove());
+
+        // ✅ 새 CSS 주입 + 로드 대기
+        const baseCSS = ['bootstrap', 'font-awesome', 'fonts.googleapis', 'base.css', 'snow_reverse.css'];
+        const linkPromises = [];
+
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            const href = link.getAttribute('href');
+            if (baseCSS.some(name => href.includes(name))) return;
+
+            const newLink = document.createElement('link');
+            newLink.rel = 'stylesheet';
+            newLink.href = href + '?t=' + Date.now(); // 캐시 무력화
+            newLink.setAttribute('data-dynamic', 'true');
+
+            linkPromises.push(new Promise(resolve => {
+                newLink.onload = resolve;
+                newLink.onerror = resolve;
+            }));
+
+            document.head.appendChild(newLink);
+        });
+
+        // ✅ CSS 다 로드된 후 콘텐츠 교체
+        await Promise.all(linkPromises);
+
+        mainContent.innerHTML = doc.getElementById('main-content')?.innerHTML || html;
+        window.history.pushState({}, '', url);
+
+        // ✅ 인라인 script 실행
+        mainContent.querySelectorAll('script:not([src])').forEach(old => {
+            const s = document.createElement('script');
+            s.textContent = old.textContent;
+            old.replaceWith(s);
+        });
+
+        // ✅ 외부 script 순서대로 로드
+        const loadScript = (script) => new Promise((resolve) => {
+            const s = document.createElement('script');
+            s.src = script.getAttribute('src') + '?t=' + Date.now();
+            s.onload = resolve;
+            s.onerror = resolve;
+            script.replaceWith(s);
+        });
+
+        for (const script of [...mainContent.querySelectorAll('script[src]')]) {
+            await loadScript(script);
+        }
+
+        checkProfileMusic();
+
+    } catch(e) {
+        console.error(e);
+        window.location.href = url;
+    }
+};
+
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a');
+        if (!anchor) return;
+        const href = anchor.getAttribute('href');
+        if (!href || href.startsWith('http') || href.startsWith('#') ||
+            href.startsWith('mailto') || anchor.target === '_blank') return;
+        e.preventDefault();
+        navigateTo(href);
+    });
+
+    window.addEventListener('popstate', () => {
+        navigateTo(window.location.pathname + window.location.search);
+    });
+
+    loadAudioState();
+    checkProfileMusic();
+</script>
 
     </body>
 </html>

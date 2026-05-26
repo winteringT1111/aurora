@@ -12,9 +12,21 @@
      
     <link rel="stylesheet" href="{% static 'css/character_style.css' %}">
     <link rel="stylesheet" href="{% static 'css/inventory.css' %}">
+
+    <style>
+        .audio {
+            display: none;
+        }
+
+    </style>
 {% endblock %}
 
 {% block content %}
+
+{% if char.name_kr %}
+    <div id="profile_music" class="hidden" data-music="{{ char.name_kr }}.mp3" style="display:none;"></div>
+{% endif %}
+
 
 <div id="itemModal" class="custom-modal">
     <div class="modal-box">
@@ -332,5 +344,137 @@ function submitTransfer() {
         if (event.target == transferModal) closeModal('transferModal');
     }
 </script>
+
+
+
+
+
+
+
+
+
+
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+        const audio = document.getElementById('background-music');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const status = document.getElementById('status');
+        const toStart = document.getElementById('to-start-button');
+        
+        let isPlaying = false;
+
+        // 1. 기본 브금 주소 설정
+        const defaultSource = "{% static 'bgm2.mp3' %}";
+        let targetSource = defaultSource;
+
+        const userBox = document.getElementById('profile_music');
+        const currentSourceElement = audio.querySelector('source');
+
+        // 2. [핵심] 캐릭터 파일이 실제로 존재하는지 비동기로 검사하는 함수
+        const checkAndInitAudio = async () => {
+            if (userBox && userBox.getAttribute('data-music')) {
+                const musicFile = userBox.getAttribute('data-music');
+                const testSource = `{% static 'audio/' %}${musicFile}`;
+
+                try {
+                    // 서버에 해당 .mp3 파일이 진짜 있는지 살짝 찔러봅니다 (헤더만 가볍게 확인)
+                    const response = await fetch(testSource, { method: 'HEAD' });
+                    if (response.ok) {
+                        // 🛠️ 파일이 존재하면 캐릭터 전용 브금으로 채택!
+                        targetSource = testSource;
+                    } else {
+                        console.log(`🎵 캐릭터 브금(${musicFile})이 폴더에 없어 기본 브금으로 대체합니다.`);
+                    }
+                } catch (e) {
+                    console.error("오디오 파일 검사 중 오류 발생:", e);
+                }
+            }
+
+            // 3. 소스가 바뀔 때만 리로드하고 재생 시간 초기화
+            const tempAnchor = document.createElement('a');
+            tempAnchor.href = targetSource;
+            
+            if (currentSourceElement.src !== tempAnchor.href) {
+                currentSourceElement.src = targetSource;
+                audio.load();
+                localStorage.removeItem('audio-currentTime');
+            }
+
+            // 소스 결정이 완전히 끝난 후 오디오 상태 복원 및 재생 시작
+            restoreAudioTime();
+            if (localStorage.getItem('audio-isPlaying') === 'true' || targetSource !== defaultSource) {
+                playAudio();
+            }
+        };
+
+        // 3. 오디오 시간 복원 함수
+        const restoreAudioTime = () => {
+            const savedTime = localStorage.getItem('audio-currentTime');
+            if (savedTime && audio.currentTime === 0) {
+                audio.currentTime = parseFloat(savedTime);
+            }
+        };
+
+        // 4. 음악 재생 함수 (브라우저 정책 우회 포함)
+        const playAudio = () => {
+            restoreAudioTime();
+            
+            audio.play().then(() => {
+                isPlaying = true;
+                status.classList = 'fa-solid fa-pause';
+                localStorage.setItem('audio-isPlaying', 'true');
+            }).catch(error => {
+                console.log('브라우저 정책으로 자동 재생이 대기 중입니다. (클릭 시 재생)');
+                isPlaying = false;
+                status.classList = 'fa-solid fa-play';
+            });
+        };
+
+        // 5. 페이지 이동 후 유저가 '첫 클릭'을 하는 순간 자연스럽게 이어가기
+        const handleFirstInteract = () => {
+            const savedIsPlaying = localStorage.getItem('audio-isPlaying');
+            if ((savedIsPlaying === 'true' || targetSource !== defaultSource) && audio.paused) {
+                playAudio();
+            }
+            document.removeEventListener('click', handleFirstInteract);
+        };
+        document.addEventListener('click', handleFirstInteract);
+
+        // 오디오 컨트롤 버튼 리스너들
+        playPauseButton.addEventListener('click', () => {
+            if (audio.paused) {
+                playAudio();
+            } else {
+                audio.pause();
+                isPlaying = false;
+                status.classList = 'fa-solid fa-play';
+                localStorage.setItem('audio-isPlaying', 'false');
+            }
+        });
+
+        toStart.addEventListener('click', () => {
+            audio.currentTime = 0;
+            playAudio();
+        });
+
+        // 1초 주기로 현재 진행 시간 동기화
+        setInterval(() => {
+            if (!audio.paused) {
+                localStorage.setItem('audio-currentTime', audio.currentTime);
+            }
+        }, 1000);
+
+        window.addEventListener('beforeunload', () => {
+            if (!audio.paused) {
+                localStorage.setItem('audio-currentTime', audio.currentTime);
+            }
+        });
+
+        checkAndInitAudio();
+    });
+</script>
+
+
 
 {% endblock %}
