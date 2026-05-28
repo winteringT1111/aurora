@@ -23,12 +23,12 @@ def play_main(request):
         # 필요하다면 messages.warning(request, "캐릭터 정보가 존재하지 않습니다.") 등을 넣을 수 있습니다.
     
     # DB에 등록된 모든 탐색 맵을 가져옵니다 (발테리온-수도, 왕도 등)
-    maps = ExplorationMap.objects.filter(id=4)
+    maps = ExplorationMap.objects.filter(id=1)
     
     # 각 맵 ID별 시작 노드 번호 매핑
     START_NODES = {
         1: '27',  # 1번 맵의 시작 노드는 27
-        3: '1',   # 2번 맵의 시작 노드는 1
+        3: '93',   # 2번 맵의 시작 노드는 1
         4: '93',   # 2번 맵의 시작 노드는 1
     }
     
