@@ -114,6 +114,8 @@ def play_node(request, map_id, node_id):
     START_NODES = {
         1: '27',  # 1번 맵의 시작 노드는 27
         2: '1',   # 2번 맵의 시작 노드는 1
+        4: '93',   # 2번 맵의 시작 노드는 1
+        3: '93',   # 2번 맵의 시작 노드는 1
     }
     start_node_id = START_NODES.get(map_id, '1')
 
