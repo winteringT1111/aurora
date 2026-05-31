@@ -514,19 +514,19 @@ def use_item_view(request):
             return JsonResponse({'success': True, 'message': f'용사 기여도가 {gain} 상승했습니다! (현재: {character.points})'})
         
         elif item_name == "마법의 레시피":
-            from main.models import RecipeHint  # 앱 이름 맞게
+            from main.models import RecipeHint
 
-            # 랜덤으로 힌트 1개 뽑기
-            hint_obj = RecipeHint.objects.order_by('?').first()
-            if not hint_obj:
+            hints = list(RecipeHint.objects.select_related('item').all())
+            if not hints:
                 return JsonResponse({'success': False, 'message': '레시피 데이터가 없습니다.'})
 
-            # 해당 레시피 아이템을 인벤토리에 추가
-            recipe_item = Item.objects.filter(name=hint_obj.item_name).first()
-            if recipe_item:
+            hint_obj = random.choice(hints)
+
+            # ✅ item_name 대신 hint_obj.item.name 사용
+            if hint_obj.item:
                 inv, created = Inventory.objects.get_or_create(
                     user=user,
-                    item=recipe_item,
+                    item=hint_obj.item,
                     defaults={'quantity': 0}
                 )
                 inv.quantity += 1
@@ -540,9 +540,9 @@ def use_item_view(request):
                 'message': '레시피 힌트를 얻었습니다!',
                 'recipe_name': hint_obj.recipe_name,
                 'hint': hint_obj.hint,
-                'item_name': hint_obj.item_name,
+                'item_name': hint_obj.item.name if hint_obj.item else f"{hint_obj.recipe_name} 레시피",  # ✅ 수정
+                'is_magic_recipe': True,
             })
-
         elif item_name == "닳고 닳은 검":
             target_char_id = data.get('target_character_id')
             if not target_char_id:
