@@ -504,6 +504,62 @@ def use_item_view(request):
             setattr(character, target_stat, current_val + 5)
             character.save()
 
+
+        elif item_name == "용사의 검":
+            gain = random.randint(1, 5)
+            character.points = (character.points or 0) + gain
+            character.save()
+            inv_item.quantity -= 1
+            inv_item.save()
+            return JsonResponse({'success': True, 'message': f'용사 기여도가 {gain} 상승했습니다! (현재: {character.points})'})
+        
+        elif item_name == "마법의 레시피":
+            from main.models import RecipeHint  # 앱 이름 맞게
+
+            # 랜덤으로 힌트 1개 뽑기
+            hint_obj = RecipeHint.objects.order_by('?').first()
+            if not hint_obj:
+                return JsonResponse({'success': False, 'message': '레시피 데이터가 없습니다.'})
+
+            # 해당 레시피 아이템을 인벤토리에 추가
+            recipe_item = Item.objects.filter(name=hint_obj.item_name).first()
+            if recipe_item:
+                inv, created = Inventory.objects.get_or_create(
+                    user=user,
+                    item=recipe_item,
+                    defaults={'quantity': 0}
+                )
+                inv.quantity += 1
+                inv.save()
+
+            inv_item.quantity -= 1
+            inv_item.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': '레시피 힌트를 얻었습니다!',
+                'recipe_name': hint_obj.recipe_name,
+                'hint': hint_obj.hint,
+                'item_name': hint_obj.item_name,
+            })
+
+        elif item_name == "닳고 닳은 검":
+            target_char_id = data.get('target_character_id')
+            if not target_char_id:
+                return JsonResponse({'success': False, 'message': '대상을 선택해 주세요.'})
+
+            target_character = Character.objects.filter(id=target_char_id).first()
+            if not target_character:
+                return JsonResponse({'success': False, 'message': '대상을 찾을 수 없습니다.'})
+
+            loss = random.randint(1, 5)
+            target_character.points = max(0, (target_character.points or 0) - loss)  # 0 아래로 안 내려가게
+            target_character.save()
+
+            inv_item.quantity -= 1
+            inv_item.save()
+            return JsonResponse({'success': True, 'message': f'{target_character.name_kr}의 용사 기여도가 {loss} 감소했습니다! (현재: {target_character.points})'})
+
         # ========================================================
         # 💡 3. 약탈의 낙인석 처리
         # ========================================================

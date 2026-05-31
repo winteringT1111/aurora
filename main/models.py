@@ -144,3 +144,19 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f"[{self.id}] {self.itemName}" # 관리자 페이지에서 "번호 아이템명"으로 보이게 설정
+
+
+
+
+# models.py (main 앱 또는 적절한 앱)
+
+# models.py의 RecipeHint 확인
+class RecipeHint(models.Model):
+    recipe_name = models.CharField(max_length=100)
+    hint = models.TextField()
+    item = models.ForeignKey(   # ✅ 이게 있어야 함
+        'Item',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )

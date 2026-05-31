@@ -12,9 +12,12 @@
         
         <div class="inv-grid">
             {% for inven_item in items %}
-                <div class="inv-slot" onclick="openItemModal('{{ inven_item.item.id }}', '{{ inven_item.item.name }}', '{{ inven_item.item.category|default:'미분류' }}', '{{ inven_item.item.description|escapejs }}', '{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png', {{ inven_item.quantity }})">
+                <div class="inv-slot" onclick="openItemModal('{{ inven_item.item.id }}', '{{ inven_item.item.name }}', '{{ inven_item.item.get_category_display }}', '{{ inven_item.item.description|escapejs }}', '{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png', {{ inven_item.quantity }})">
                     
-                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png" alt="{{ inven_item.item.name }}" class="inv-item-img">
+                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name|cut:"/" }}.png" 
+                        alt="{{ inven_item.item.name }}" 
+                        class="inv-item-img"
+                        onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
                     
                     <span class="inv-qty">x{{ inven_item.quantity }}</span>
                     
@@ -53,9 +56,43 @@
                 </div>
         </div>
 
+
+        <!-- 마법의 레시피 -->
+<div id="wrap-magic-recipe" class="use-action-wrap" style="display:none;">
+    <div style="text-align:center;padding:20px 0;">
+        <img src="{% static 'img/도트/마법의 레시피.png' %}" 
+             style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(130,80,200,0.5));">
+        <p style="margin-top:15px;color:#615848;font-size:1rem;">
+            두루마리를 펼치면 <strong style="color:#7a5abf;">레시피 힌트</strong> 하나를 얻습니다.<br>
+            <span style="font-size:0.85rem;color:#9a8a76;">인벤토리에 해당 레시피 아이템도 추가됩니다.</span>
+        </p>
+    </div>
+</div>
+
+<!-- 마법의 레시피 결과 모달 (별도) -->
+<div id="recipeResultModal" class="custom-modal">
+    <div class="modal-box" style="text-align:center;">
+        <span class="modal-close" onclick="document.getElementById('recipeResultModal').style.display='none';location.reload();">&times;</span>
+        <img src="{% static 'img/도트/마법의 레시피.png' %}" 
+             style="width:70px;height:70px;object-fit:contain;margin-bottom:15px;filter:drop-shadow(0 0 10px rgba(130,80,200,0.6));">
+        <h3 style="color:#7a5abf;font-family:'Cinzel Decorative',serif;margin-bottom:5px;">RECIPE HINT</h3>
+        <h4 id="recipe-result-name" style="color:#4a3f31;margin-bottom:15px;"></h4>
+        <div style="background:#f5f2ea;border:1px solid #cdc6b8;border-radius:8px;padding:15px;margin-bottom:15px;">
+            <p id="recipe-result-hint" style="color:#615848;font-size:0.95rem;line-height:1.6;margin:0;"></p>
+        </div>
+        <p style="color:#9a8a76;font-size:0.85rem;">
+            📜 <strong id="recipe-result-item" style="color:#7a5abf;"></strong> 아이템이 인벤토리에 추가되었습니다!
+        </p>
+        <button class="modal-btn" onclick="document.getElementById('recipeResultModal').style.display='none';location.reload();" 
+                style="margin-top:15px;width:100%;">확인</button>
+    </div>
+</div>
+
+
+
         <div id="wrap-plunder" class="use-action-wrap" style="display: none;">
             <div class="form-group" style="margin-bottom: 15px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #615848;">🔒 약탈할 상대 대상</label>
+                <label style="font-weight: bold; display: block; margin-bottom: 5px; color: #615848;">약탈할 상대 대상</label>
                 <select id="plunderTarget" class="modal-input" style="width: 100%; box-sizing: border-box;">
                     <option value="">대상을 선택해 주세요</option>
                     {% for char_item in characters %}
@@ -64,9 +101,34 @@
                     {% endfor %}
                 </select>
             </div>
-            <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #615848;">🔒 대상에게서 5를 빼앗아올 스탯 종류</label>
+            <label style="font-weight: bold; display: block; margin-bottom: 10px; color: #615848;">대상에게서 5를 빼앗아올 스탯 종류</label>
             <div id="plunder-stat-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 </div>
+        </div>
+
+        <!-- 용사의 검 -->
+        <div id="wrap-hero-sword" class="use-action-wrap" style="display:none;">
+            <div style="text-align:center;padding:20px 0;">
+                <img src="{% static 'img/도트/용사의 검.png' %}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(186,158,122,0.6));">
+                <p style="margin-top:15px;color:#615848;font-size:1rem;">사용 시 용사 기여도가 <strong style="color:#8c6a3a;">1~5 랜덤</strong>으로 상승합니다.</p>
+                <p style="color:#9a8a76;font-size:0.85rem;">현재 기여도: <strong>{{ char.points }}</strong></p>
+            </div>
+        </div>
+
+        <!-- 닳고 닳은 검 -->
+        <div id="wrap-rusty-sword" class="use-action-wrap" style="display:none;">
+            <div style="padding:10px 0;">
+                <div style="text-align:center;margin-bottom:15px;">
+                    <img src="{% static 'img/도트/닳고 닳은 검.png' %}" style="width:80px;height:80px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(140,35,35,0.4));">
+                </div>
+                <p style="color:#615848;font-size:0.9rem;margin-bottom:10px;">대상의 용사 기여도를 <strong style="color:#8c2323;">1~5 랜덤</strong>으로 감소시킵니다.</p>
+                <div class="form-group">
+                    <label>대상 선택:</label>
+                    <select id="rustyTarget" class="modal-input">
+                        <option value="">-- 캐릭터 선택 --</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <button class="modal-btn" style="width: 100%; margin-top: 25px; background: #8c2323; color: white;" onclick="submitItemUseAction()">
