@@ -40,6 +40,7 @@ class Character(models.Model):
     stat_good = models.PositiveIntegerField(default=0, verbose_name="선의")
     stat_mag = models.PositiveIntegerField(default=0, verbose_name="마력")
     stat_div = models.PositiveIntegerField(default=0, verbose_name="신성력")
+    points = models.PositiveIntegerField(default=30, verbose_name="용사기여도")
 
     gold = models.IntegerField(default=100, verbose_name="골드")
     energy = models.IntegerField(default=100, verbose_name="활력")
