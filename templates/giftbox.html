@@ -3,7 +3,6 @@
 
 {% block head %}
 <style>
-    /* 스크롤바 숨김 */
     * { -ms-overflow-style: none !important; scrollbar-width: none !important; }
     *::-webkit-scrollbar { display: none !important; }
 
@@ -24,10 +23,21 @@
     }
 
     .gift-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-    }
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    
+    /* ✅ 추가 */
+    max-height: 85vh;
+    overflow-y: auto;
+    padding-right: 5px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.gift-grid::-webkit-scrollbar {
+    display: none;
+}
 
     .gift-card {
         background: #fdfcf7;
@@ -42,9 +52,37 @@
         position: relative;
     }
 
-    .gift-card:hover {
+    .gift-card:hover:not(.claimed) {
         transform: translateY(-5px);
         border-color: #a19279;
+    }
+
+    /* ✅ 수령한 선물 흑백 처리 */
+    .gift-card.claimed {
+        filter: grayscale(100%);
+        opacity: 0.6;
+        border-style: solid;
+        border-color: #ccc;
+    }
+
+    .gift-card.claimed .claim-btn {
+        background-color: #aaa;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* ✅ 수령 완료 뱃지 */
+    .claimed-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #8c7e6c;
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: bold;
+        letter-spacing: 1px;
     }
 
     .gift-img-box {
@@ -62,7 +100,6 @@
 
     .gift-info { text-align: center; width: 100%; }
     .gift-name { font-size: 1.2rem; font-weight: bold; color: #4a3f31; margin-bottom: 5px; font-family: 'Hahmlet', 'Noto Sans KR', serif;}
-    
     .gift-meta { font-size: 0.85rem; color: #8c7e6c; margin-bottom: 15px; }
     .gift-meta span { display: block; margin-bottom: 3px; }
 
@@ -97,62 +134,112 @@
         text-align: center; color: #8c7e6c;
         grid-column: 1 / -1; margin-top: 50px; font-size: 1.1rem;
     }
+
+    /* ✅ 섹션 구분 */
+    .section-label {
+        grid-column: 1 / -1;
+        font-family: 'Cinzel Decorative', serif;
+        color: #8c7e6c;
+        font-size: 0.85rem;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #e2d5c3;
+        padding-bottom: 8px;
+        margin-top: 10px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-{% include "UI.html" %}
 <div class="giftbox-container">
     <div class="giftbox-title">선물함</div>
 
     <div class="gift-grid">
-        {% for gift in gifts %}
-        <div class="gift-card" id="gift-card-{{ gift.id }}">
-            <div class="gift-img-box">
-                <!-- 이미지 경로 설정 (도트 이미지 등 기존 방식 유지) -->
-                <img src="{% if gift.item.image %}{{ gift.item.image.url }}{% else %}{% static 'img/도트/' %}{{ gift.item.name }}.png{% endif %}" alt="{{ gift.item.name }}">
-            </div>
-            
-            <div class="gift-info">
-                <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
-                
-                <div class="gift-meta">
-                    <span>보낸 이 : 
-                        {% if gift.is_anonymous %}
-                            <strong>익명의 누군가</strong>
-                        {% else %}
-                            <strong>{{ gift.sender.username }}</strong>
-                        {% endif %}
-                    </span>
-                    <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
-                </div>
+        {% if gifts %}
+            {% with has_unclaimed=False %}
 
-                <div class="gift-msg-box">
-                    {% if gift.message %}
-                        {{ gift.message }}
-                    {% else %}
-                        ( 메시지가 없습니다 )
-                    {% endif %}
+            {# 미수령 섹션 #}
+            {% for gift in gifts %}
+                {% if not gift.is_claimed and forloop.first %}
+                    <div class="section-label">✦ GIFTS</div>
+                {% endif %}
+                {% if not gift.is_claimed %}
+                <div class="gift-card" id="gift-card-{{ gift.id }}">
+                    <div class="gift-img-box">
+                        <img src="{% static 'img/도트/' %}{{ gift.item.name|cut:'/' }}.png"
+                             alt="{{ gift.item.name }}"
+                             onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+                    </div>
+                    <div class="gift-info">
+                        <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
+                        <div class="gift-meta">
+                            <span>보낸 이 :
+                                {% if gift.is_anonymous %}
+                                    <strong>익명의 누군가</strong>
+                                {% else %}
+                                    <strong>{{ gift.sender.username }}</strong>
+                                {% endif %}
+                            </span>
+                            <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                        <div class="gift-msg-box">
+                            {% if gift.message %}{{ gift.message }}{% else %}( 메시지가 없습니다 ){% endif %}
+                        </div>
+                        <button class="claim-btn" onclick="claimGift({{ gift.id }})">보관하기</button>
+                    </div>
                 </div>
+                {% endif %}
+            {% endfor %}
 
-                <button class="claim-btn" onclick="claimGift({{ gift.id }})">보관하기</button>
-            </div>
-        </div>
-        {% empty %}
-        <div class="empty-msg">도착한 선물이 없습니다.</div>
-        {% endfor %}
+            {# 수령 완료 섹션 #}
+            {% for gift in gifts %}
+                {% if gift.is_claimed and forloop.first %}
+                    <div class="section-label">✦ CLAIMED</div>
+                {% endif %}
+                {% if gift.is_claimed %}
+                <div class="gift-card claimed" id="gift-card-{{ gift.id }}">
+                    <div class="claimed-badge">보관 완료</div>
+                    <div class="gift-img-box">
+                        <img src="{% static 'img/도트/' %}{{ gift.item.name|cut:'/' }}.png"
+                             alt="{{ gift.item.name }}"
+                             onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+                    </div>
+                    <div class="gift-info">
+                        <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
+                        <div class="gift-meta">
+                            <span>보낸 이 :
+                                {% if gift.is_anonymous %}
+                                    <strong>익명의 누군가</strong>
+                                {% else %}
+                                    <strong>{{ gift.sender.username }}</strong>
+                                {% endif %}
+                            </span>
+                            <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                        <div class="gift-msg-box">
+                            {% if gift.message %}{{ gift.message }}{% else %}( 메시지가 없습니다 ){% endif %}
+                        </div>
+                        <button class="claim-btn" disabled>보관 완료</button>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            {% endwith %}
+        {% else %}
+            <div class="empty-msg">도착한 선물이 없습니다.</div>
+        {% endif %}
     </div>
 </div>
 
 <script>
 function claimGift(giftId) {
-    const csrftoken = '{{ csrf_token }}'; // 장고 템플릿 태그로 토큰 가져오기
+    const csrftoken = '{{ csrf_token }}';
 
     fetch("{% url 'main:claim_gift' %}", {
         method: 'POST',
-        headers: { 
+        headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrftoken 
+            'X-CSRFToken': csrftoken
         },
         body: JSON.stringify({ 'gift_id': giftId })
     })
@@ -160,11 +247,15 @@ function claimGift(giftId) {
     .then(data => {
         if (data.success) {
             alert(data.msg);
-            // 💡 보관에 성공하면 새로고침 없이 화면에서 카드만 예쁘게 싹 지워줌
             const card = document.getElementById(`gift-card-${giftId}`);
-            card.style.transition = "opacity 0.5s";
-            card.style.opacity = "0";
-            setTimeout(() => card.remove(), 500);
+            card.classList.add('claimed');
+            card.querySelector('.claim-btn').textContent = '보관 완료';
+            card.querySelector('.claim-btn').disabled = true;
+
+            const badge = document.createElement('div');
+            badge.className = 'claimed-badge';
+            badge.textContent = '보관 완료';
+            card.appendChild(badge);
         } else {
             alert("오류: " + data.msg);
         }

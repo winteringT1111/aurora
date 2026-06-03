@@ -383,61 +383,52 @@ def combine(request):
 
 
 
-    # 1. 선물함 화면 렌더링
-@login_required(login_url='/login')
+@login_required
 def giftbox_view(request):
     try:
-        # 내 유저 계정과 연결된 캐릭터(CharInfo) 찾기
-        char_info = CharInfo.objects.get(user=request.user)
-        my_char = char_info.char
-        
-        # 내가 받은 선물 중 아직 수령하지 않은(is_claimed=False) 선물만 최신순으로 가져오기
-        gifts = Gift.objects.filter(receiver=my_char, is_claimed=False).order_by('-created_at')
-        
+        char = CharInfo.objects.get(user=request.user).char
     except CharInfo.DoesNotExist:
-        gifts = []
+        return render(request, 'giftbox.html', {'gifts': []})
 
-    return render(request, "giftbox.html", {'gifts': gifts})
+    gifts = Gift.objects.filter(
+        receiver=char
+    ).order_by('is_claimed', '-created_at')
+
+    return render(request, 'giftbox.html', {'gifts': gifts})
+
+
 
 # 2. 보관하기 버튼 클릭 시 인벤토리로 이동 (AJAX 통신용)
-@require_POST
 @login_required
+@transaction.atomic
 def claim_gift(request):
-    try:
+    if request.method == 'POST':
         data = json.loads(request.body)
         gift_id = data.get('gift_id')
-        
-        # 해당 선물 찾기
-        gift = Gift.objects.get(id=gift_id, is_claimed=False)
-        
-        # 본인이 받은 선물이 맞는지 한 번 더 검증
-        char_info = CharInfo.objects.get(user=request.user)
-        if gift.receiver != char_info.char:
-            return JsonResponse({'success': False, 'msg': '본인의 선물만 수령할 수 있습니다.'})
-        
-        # ✨ 인벤토리에 아이템 추가
-        inv_slot, created = Inventory.objects.get_or_create(
-            user=request.user, 
-            item=gift.item, 
-            defaults={'quantity': 0}
-        )
-        inv_slot.quantity += gift.quantity
-        inv_slot.save()
-        
-        # ✨ 선물 수령 처리 (True로 바꾸면 선물함 목록에서 사라짐)
-        gift.is_claimed = True
-        gift.save()
-        
-        return JsonResponse({'success': True, 'msg': f"'{gift.item.name}'을(를) 인벤토리에 보관했습니다!"})
 
-    except Gift.DoesNotExist:
-        return JsonResponse({'success': False, 'msg': '이미 수령했거나 존재하지 않는 선물입니다.'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'msg': str(e)})
-    
+        try:
+            char = CharInfo.objects.get(user=request.user).char  # ✅ 수정
+            gift = Gift.objects.get(id=gift_id, receiver=char, is_claimed=False)
 
+            inv, created = Inventory.objects.get_or_create(
+                user=request.user,
+                item=gift.item,
+                defaults={'quantity': 0}
+            )
+            inv.quantity += gift.quantity
+            inv.save()
 
+            gift.is_claimed = True
+            gift.save()
 
+            return JsonResponse({'success': True, 'msg': f'[{gift.item.name}] x{gift.quantity} 보관 완료!'})
+
+        except CharInfo.DoesNotExist:
+            return JsonResponse({'success': False, 'msg': '캐릭터 정보를 찾을 수 없습니다.'})
+        except Gift.DoesNotExist:
+            return JsonResponse({'success': False, 'msg': '선물을 찾을 수 없습니다.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'msg': str(e)})
 
 
 
