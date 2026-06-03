@@ -37,21 +37,22 @@
             {% for character in characters %}
             <!-- data-origin 속성에 출신지를 넣어 JS 필터링에 사용합니다 -->
             <div class="member-card" data-origin="{{ character.origin }}">
-                            <!-- 1. 밑에 깔리는 캐릭터 이미지 (먼저 작성) -->
-                <a href="/member/{{character.name_en}}"><img src="{% get_static_prefix %}img/member/흉상/{{ character.name_en }}.png" alt="{{ character.name_kr }}" class="member-img"> </a>
-                
-                <!-- 2. 그 위에 덮어씌울 프레임 이미지 (나중에 작성) -->
-                <img src="{% static 'img/member.png' %}" class="card-frame">
+    
+    <!-- ✅ 상단 타이틀 띠 추가 -->
+    <div class="card-top-title">【 기사 】</div>
 
-                <!-- 하단 정보 영역 (그라데이션 + 텍스트) -->
-                <div class="member-info">
-                    <!-- 요청하신 타이틀 (캐치프레이즈) -->
-                     <div class="diamond-deco">⯌ ⯌ ⯌</div>
-                    <div class="member-title">【 {{ character.catchphrase }} 】</div>
-                    <!-- 이름 (하단 배치) -->
-                    <div class="member-name">{{ character.name_kr }}</div>
-                </div>
-            </div>
+        <a href="/member/{{character.name_en}}">
+            <img src="{% get_static_prefix %}img/member/흉상/{{ character.name_en }}.png" alt="{{ character.name_kr }}" class="member-img">
+        </a>
+        
+        <img src="{% static 'img/member.png' %}" class="card-frame">
+
+        <div class="member-info">
+            <div class="diamond-deco">⯌ ⯌ ⯌</div>
+            <div class="member-title">【 {{ character.catchphrase }} 】</div>
+            <div class="member-name">{{ character.name_kr }}</div>
+        </div>
+    </div>
             {% endfor %}
             
             

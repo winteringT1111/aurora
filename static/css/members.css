@@ -94,6 +94,24 @@ body::-webkit-scrollbar-thumb { display: none; }
     border-radius: 6px; 
 }
 
+.card-top-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(252, 251, 246, 0.85);
+    border: 1px solid #cdc6b8;
+    color: #8c7e6c;
+    font-family: 'Cinzel Decorative', serif;
+    font-weight: bold;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    padding: 4px 12px 2px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    z-index: 10;
+}
+
 .member-info {
     position: absolute;
     bottom: 0; left: 0; width: 100%;
