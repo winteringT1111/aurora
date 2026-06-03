@@ -72,12 +72,45 @@
                 <img src="{% static 'img/crown.png' %}" alt="왕관" class="crown-img">
             </div>
             
-            <div class="notice-list">
-                <div class="notice-item">
-                    <span class="star-icon">✦</span> <span class="notice-text">용사 기여도 변동 후 순위 공개 예정</span>
-                </div>
+            <div class="ranking-section">
+    <!-- 상위 3명 -->
+    <div class="ranking-group">
+        <div class="ranking-label top">
+            <span>✦ TOP ✦</span>
+        </div>
+        {% for char in top3 %}
+        <div class="ranking-item">
+            <span class="rank-num top-rank">{{ forloop.counter }}</span>
+            <a href="/member/{{ char.name_en }}" class="rank-name">{{ char.name_kr }}</a>
+            <span class="rank-points top-points">{{ char.points }} SP</span>
+        </div>
+        {% empty %}
+        <div class="notice-item">
+            <span class="notice-text">집계 중...</span>
+        </div>
+        {% endfor %}
+    </div>
 
+    <div class="ranking-divider">· · ·</div>
+
+    <!-- 하위 3명 -->
+    <div class="ranking-group">
+            <div class="ranking-label bottom">
+                <span>✦ BOTTOM ✦</span>
             </div>
+            {% for char in bottom3 %}
+            <div class="ranking-item">
+                <span class="rank-num bottom-rank">{{ forloop.counter }}</span>
+                <a href="/member/{{ char.name_en }}" class="rank-name">{{ char.name_kr }}</a>
+                <span class="rank-points bottom-points">{{ char.points }} SP</span>
+            </div>
+            {% empty %}
+            <div class="notice-item">
+                <span class="notice-text">집계 중...</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 
         </div>
     </div>
@@ -85,8 +118,8 @@
     <div class="right-panel-wrapper">
         
         <div class="weather-bar">
-            <span class="weather-desc">마력 광맥 위로 푸른 빛이 은은하게 새어나온다.</span>
-            <span class="weather-temp">9℃</span>
+            <span class="weather-desc">우기가 시작되며 굵은 빗줄기가 쏟아진다.</span>
+            <span class="weather-temp">17℃</span>
             <span class="weather-loc">Archelume</span><span class="weather-de"><img src="{% static 'img/star.png' %}" alt="기사단 문장 핀" class="starr"></span>
         </div>
 
@@ -127,7 +160,7 @@
                     <div class="panel-inner">
                         <div class="map-text">
                             <h4>✦ 현 거주 지역</h4>
-                            <p>[아르켈룸 - 국경] 지역에 오신 것을 환영합니다.</p>
+                            <p>[아르켈룸 - 중앙 연구 구역] 지역에 오신 것을 환영합니다.</p>
                         </div>
                     </div>
                 </div>
@@ -137,7 +170,7 @@
                         
                         <div class="quest-bottom">
                             <span class="ap-cost">진행 시 활력 소모</span>
-                            <a href="/play" class="quest-action-btn">Chapter 02-1 조사</a>
+                            <a href="/play" class="quest-action-btn">Chapter 02-2 조사</a>
                         </div>
                     </div>
                 </div>

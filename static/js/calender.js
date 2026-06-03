@@ -7,10 +7,21 @@
         { id: 5, title: "공백기", start: "2026-05-25", end: "2026-05-26", desc: "운영 정비 기간입니다. 텍관란 조율이 가능합니다.", colorClass: "event-color-2" },
         { id: 6, title: "MAIN STORY", start: "2026-05-27", end: "2026-05-27", desc: "22:00부터 자유 참가로 짧게 진행됩니다.", colorClass: "event-color-3" },
         { id: 7, title: "조사", start: "2026-05-28", end: "2026-05-29", desc: "27일의 선택지에 따라 짧은 조사가 진행될 수 있습니다.", colorClass: "event-color-1" },
-        { id: 8, title: "MAIN STORY", start: "2026-05-31", end: "2026-05-31", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" }
+        { id: 8, title: "MAIN STORY", start: "2026-05-31", end: "2026-05-31", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" },
+        { id: 9, title: "SUB STORY", start: "2026-06-06", end: "2026-06-06", desc: "카페에서 서브 스토리가 진행됩니다.", colorClass: "event-color-1" },
+        { id: 10, title: "MAIN STORY", start: "2026-06-07", end: "2026-06-07", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" },
+        { id: 11, title: "MAIN STORY", start: "2026-06-13", end: "2026-06-14", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" },
+        { id: 12, title: "공백기", start: "2026-06-15", end: "2026-06-16", desc: "운영 정비 기간입니다. 활동이 제한됩니다.", colorClass: "event-color-2" },
+        { id: 13, title: "SUB STORY(축성제)", start: "2026-06-17", end: "2026-06-17", desc: "카페에서 서브 스토리가 진행됩니다.", colorClass: "event-color-1" },
+        { id: 14, title: "MAIN STORY", start: "2026-06-19", end: "2026-06-21", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" },
+        { id: 14, title: "SUB STORY", start: "2026-06-19", end: "2026-06-19", desc: "카페에서 서브 스토리가 진행됩니다.", colorClass: "event-color-1" },
+        { id: 14, title: "SUB STORY", start: "2026-06-21", end: "2026-06-21", desc: "카페에서 서브 스토리가 진행됩니다.", colorClass: "event-color-1" },
+        { id: 14, title: "공백기", start: "2026-06-23", end: "2026-06-24", desc: "운영 정비 기간입니다. 활동이 제한됩니다.", colorClass: "event-color-2" },
+        { id: 14, title: "MAIN STORY", start: "2026-06-27", end: "2026-06-28", desc: "카페에서 메인 스토리가 진행됩니다.", colorClass: "event-color-3" },
+        { id: 14, title: "SUB STORY", start: "2026-06-28", end: "2026-06-28", desc: "카페에서 서브 스토리가 진행됩니다.", colorClass: "event-color-1" }
     ];
 
-    const ALLOWED_MONTHS = [4, 5];
+    const ALLOWED_MONTHS = [5, 6];
     const YEAR = 2026;
 
     let currentMonth = new Date().getMonth();

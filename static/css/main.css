@@ -211,8 +211,8 @@
 
 .crown-logo-area {
     text-align: center;
-    margin-top: 50px;
-    margin-bottom: 40px;
+    margin-top: 30px;
+    margin-bottom: 25px;
 }
 
 .crown-img {
@@ -640,7 +640,7 @@
 
     /* 🚨 찌그러짐의 원인이었던 기존의 border: 1px solid ~ 와 aspect-ratio는 반드시 지워주세요! */
     
-    min-height: 50px; /* 💡 정사각형 대신 여유 있는 최소 높이를 설정 (틀에 맞게 70~80 사이로 조절해보세요) */
+    min-height: 60px; /* 💡 정사각형 대신 여유 있는 최소 높이를 설정 (틀에 맞게 70~80 사이로 조절해보세요) */
     box-sizing: border-box;
     padding: 4px;
     display: flex;
@@ -796,18 +796,19 @@
    ========================================= */
 .event-bar-container {
     position: absolute; /* 날짜 칸 안에서 겹쳐서 띄우기 위함 */
-    height: 16px;
+    height: 14px;
     width: 100%; /* 날짜 칸에 꽉 차게 */
     left: 0;
+    top: 0;
 }
 
 .event-bar {
     position: absolute;
     top: 0;
     height: 100%;
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     color: #fff;
-    padding: 1px 4px;
+    padding: 0px 4px;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -851,5 +852,85 @@
 
 
 
+/* =========================================
+   용사 기여도 랭킹
+   ========================================= */
+.ranking-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    padding: 0 15px;
+    margin-top: 0px;
+}
 
+.ranking-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ranking-label {
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 3px;
+    padding-left: 5px;
+}
+
+.ranking-label.top {
+    color: #ba9e7a;
+}
+
+.ranking-label.bottom {
+    color: #9e8a8a;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 5px 12px;
+    background: linear-gradient(to right, rgba(226, 222, 207, 0.8), transparent);
+    gap: 8px;
+}
+
+.rank-num {
+    font-size: 0.8rem;
+    font-weight: bold;
+    min-width: 16px;
+    text-align: center;
+}
+
+.rank-num.top-rank { color: #ba9e7a; }
+.rank-num.bottom-rank { color: #9e8a8a; }
+
+.rank-name {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #615848;
+    font-family: "Gowun Batang", serif;
+    text-decoration: none;
+}
+
+.rank-name:hover {
+    color: #ba9e7a;
+    text-decoration: none;
+}
+
+.rank-points {
+    font-size: 0.8rem;
+    font-weight: bold;
+    font-family: "Cinzel Decorative", serif;
+}
+
+.rank-points.top-points { color: #ba9e7a; }
+.rank-points.bottom-points { color: #9e8a8a; }
+
+.ranking-divider {
+    text-align: center;
+    color: #cdc6b8;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    margin: 2px 0;
+}
 

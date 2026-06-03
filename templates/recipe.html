@@ -28,7 +28,10 @@
         <div class="inventory-grid">
             {% for inven_item in inventory_items %}
                 <div class="item" data-name="{{ inven_item.item.name }}" data-count="{{ inven_item.quantity }}">
-                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name }}.png" alt="{{ inven_item.item.name }}" class="item-icon">
+                    <img src="{% static 'img/도트/' %}{{ inven_item.item.name|cut:'/' }}.png" 
+                        alt="{{ inven_item.item.name }}" 
+                        class="item-icon"
+                        onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
                     <span class="item-count">x{{ inven_item.quantity }}</span>
                     <div class="item-tooltip">
                         <p class="item-name">{{ inven_item.item.name }}</p>

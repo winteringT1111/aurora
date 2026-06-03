@@ -12,7 +12,14 @@ from main.models import Inventory, Gift
 from main.models import Item, Inventory, Gift
 
 def main_page(request):
-    return render(request, "main.html")
+    top3 = Character.objects.order_by('-points')[:3]
+    bottom3 = Character.objects.order_by('points')[:3]
+
+    context = {
+        'top3': top3,
+        'bottom3': bottom3,
+    }
+    return render(request, "main.html", context)
 
 
 
