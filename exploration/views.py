@@ -37,7 +37,7 @@ def play_main(request):
         emap.start_node = START_NODES.get(emap.id, '1')
 
     context = {
-        'maps': maps,
+        'maps': None,
         'character': character, # 이제 데이터가 없어도 None으로 안전하게 패스됩니다.
     }
     return render(request, 'exploration/play_main.html', context)

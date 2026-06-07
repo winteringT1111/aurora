@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 # 사용할 모델들을 불러옵니다 (앱 이름은 실제 환경에 맞게 수정하세요)
 from member.models import Character 
 from main.models import *
+from django.views.decorators.http import require_POST
 from users.models import CharInfo
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -42,11 +43,45 @@ def character(request, name_en):
     return render(request, "charac/character.html", context)
 
 
-def members_view(request):
-    # 💡 .all() 대신 .order_by('정렬할_필드명')을 쓰면 가나다순(오름차순)으로 가져옵니다.
-    characters = Character.objects.order_by('name_kr')
+@login_required
+@require_POST
+def change_title(request):
+    try:
+        data = json.loads(request.body)
+        title_id = data.get('title_id')
+
+        char = CharInfo.objects.get(user=request.user).char
+
+        # 보유한 타이틀인지 확인
+        title = char.unlocked_titles.filter(id=title_id).first()
+        if not title:
+            return JsonResponse({'success': False, 'msg': '보유하지 않은 타이틀입니다.'})
+
+        char.title = title
+        char.save()
+        return JsonResponse({'success': True, 'msg': f'타이틀이 [{title.name}]으로 변경되었습니다!', 'title_name': title.name})
+
+    except CharInfo.DoesNotExist:
+        return JsonResponse({'success': False, 'msg': '캐릭터 정보를 찾을 수 없습니다.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'msg': str(e)})
     
-    return render(request, 'charac/members.html', {'characters': characters})
+
+
+def members_view(request):
+    characters = Character.objects.all().order_by('name_kr')
+
+    my_char = None
+    if request.user.is_authenticated:
+        try:
+            my_char = CharInfo.objects.get(user=request.user).char
+        except CharInfo.DoesNotExist:
+            pass
+
+    return render(request, 'charac/members.html', {
+        'characters': characters,
+        'my_char': my_char,
+    })
 
 import json
 from django.db import transaction

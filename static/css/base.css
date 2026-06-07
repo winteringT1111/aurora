@@ -21,13 +21,13 @@ html, body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-image: url('../img/bg1.png');
+    /* 그라데이션을 이미지보다 먼저(앞에) 배치합니다 */
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 30%), url('../img/bg1.png');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
     z-index: -2; /* 다른 콘텐츠 아래로 배치 */
 }
-
 .profile-pic-box {
     width: 60px; /* 원하는 크기 */
     height: 60px;

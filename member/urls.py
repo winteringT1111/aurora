@@ -8,6 +8,7 @@ urlpatterns = [
     path('transfer-item/', views.transfer_item, name='transfer_item'),
     path('<str:name_en>/', views.character, name='character'),
     # urls.py
+    path('member/change-title/', views.change_title, name='change_title'),
     
 
 ]

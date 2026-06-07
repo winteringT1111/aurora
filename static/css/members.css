@@ -94,6 +94,35 @@ body::-webkit-scrollbar-thumb { display: none; }
     border-radius: 6px; 
 }
 
+
+.title-dropdown-wrap {
+    position: absolute;
+    top: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 11;
+    
+}
+
+.title-select {
+    background: rgba(252, 251, 246, 0.95);
+    border: 1px solid #cdc6b8;
+    color: #8c7e6c;
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+    outline: none;
+    
+}
+
+.title-select:hover {
+    border-color: #a19279;
+}
+
+
+
 .card-top-title {
     position: absolute;
     top: 10px;

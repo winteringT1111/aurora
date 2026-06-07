@@ -35,32 +35,59 @@
         <div class="members-grid">
             <!-- 💡 Django 템플릿 반복문 -->
             {% for character in characters %}
-            <!-- data-origin 속성에 출신지를 넣어 JS 필터링에 사용합니다 -->
-            <div class="member-card" data-origin="{{ character.origin }}">
-    
-    <!-- ✅ 상단 타이틀 띠 추가 -->
-    <div class="card-top-title">【 기사 】</div>
+                <div class="member-card" data-origin="{{ character.origin }}">
 
-        <a href="/member/{{character.name_en}}">
-            <img src="{% get_static_prefix %}img/member/흉상/{{ character.name_en }}.png" alt="{{ character.name_kr }}" class="member-img">
-        </a>
-        
-        <img src="{% static 'img/member.png' %}" class="card-frame">
+                    <div class="card-top-title">
+                        {% if character.title %}[ {{ character.title.name }} ]{% else %}[ - ]{% endif %}
+                    </div>
 
-        <div class="member-info">
-            <div class="diamond-deco">⯌ ⯌ ⯌</div>
-            <div class="member-title">【 {{ character.catchphrase }} 】</div>
-            <div class="member-name">{{ character.name_kr }}</div>
-        </div>
-    </div>
-            {% endfor %}
-            
-            
+                    {% if character == my_char %}
+                    <div class="title-dropdown-wrap">
+                        <select class="title-select" onchange="changeTitle(this.value, this)">
+                            {% for t in character.unlocked_titles.all %}
+                            <option value="{{ t.id }}" {% if character.title == t %}selected{% endif %}>
+                                {{ t.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
 
+                    <a href="/member/{{character.name_en}}">
+                        <img src="{% get_static_prefix %}img/member/흉상/{{ character.name_en }}.png" alt="{{ character.name_kr }}" class="member-img">
+                    </a>
+                    <img src="{% static 'img/member.png' %}" class="card-frame">
 
-        </div>
-    </div>
+                    <div class="member-info">
+                        <div class="diamond-deco">⯌ ⯌ ⯌</div>
+                        <div class="member-title">【 {{ character.catchphrase }} 】</div>
+                        <div class="member-name">{{ character.name_kr }}</div>
+                    </div>
+                </div>
+                {% endfor %}
 
+                <script>
+                function changeTitle(titleId, selectEl) {
+                    fetch("{% url 'member:change_title' %}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                        },
+                        body: JSON.stringify({ title_id: titleId })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            // 내 카드의 타이틀 텍스트만 업데이트
+                            const myCard = selectEl.closest('.member-card');
+                            myCard.querySelector('.card-top-title').textContent = `[ ${data.title_name} ]`;
+                        } else {
+                            alert('변경 실패: ' + data.msg);
+                        }
+                    });
+                }
+                </script>
     <script src="{% static 'js/members_scripts.js' %}"></script>
 
 

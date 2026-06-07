@@ -45,8 +45,32 @@ class Character(models.Model):
     gold = models.IntegerField(default=100, verbose_name="골드")
     energy = models.IntegerField(default=100, verbose_name="활력")
 
+    title = models.ForeignKey(
+        'Title',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="현재 타이틀"
+    )
+    # ✅ 이 캐릭터가 보유한 타이틀 목록
+    unlocked_titles = models.ManyToManyField(
+        'Title',
+        blank=True,
+        related_name='characters',
+        verbose_name="보유 타이틀"
+    )
+
     def __str__(self):
         return f"{self.name_kr} ({self.name_en})"
 
     class Meta:
         verbose_name = "캐릭터"
+
+
+class Title(models.Model):
+    name = models.CharField(max_length=30, verbose_name="타이틀명")
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "타이틀"
