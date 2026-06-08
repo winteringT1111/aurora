@@ -22,7 +22,7 @@ html, body {
     width: 100vw;
     height: 100vh;
     /* 그라데이션을 이미지보다 먼저(앞에) 배치합니다 */
-    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 30%), url('../img/bg1.png');
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 35%), url('../img/bg1.png');
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
