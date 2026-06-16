@@ -31,14 +31,14 @@ class CharacterAdmin(admin.ModelAdmin):
     list_display = (
          'id','name_kr', 'name_en', 
         
-        'gold', 'energy','points'
+        'gold', 'energy','points', 'stat_str', 'stat_agi', 'stat_int', 'stat_luk', 'stat_rep', 'stat_good', 'stat_mag', 'stat_div'
     )
     
     # 2. 목록 화면에서 마우스 클릭으로 바로 수정할 필드들 (id 제외하고 전부 등록)
     list_editable = (
         'name_kr', 'name_en', 
         
-        'gold', 'energy','points'
+        'gold', 'energy','points','stat_str', 'stat_agi', 'stat_int', 'stat_luk', 'stat_rep', 'stat_good', 'stat_mag', 'stat_div'
     )
     
     # 3. 검색 기능 (한글 이름, 영어 이름으로 검색 가능)
