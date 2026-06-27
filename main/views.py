@@ -180,14 +180,15 @@ def supply(request):
                 if userinfo.energy > 200:
                     pass
                 else:
-                    userinfo.energy = 200  # 💡 에너지를 최대치(100)로 꽉 채워줍니다.
-                    userinfo.save()        # 💡 [중요] 변경된 캐릭터 정보를 DB에 저장!
+                    userinfo.energy = 200
+                    userinfo.save()
                 
                 # 2. 랜덤 아이템 지급 로직
-                items = Item.objects.all()
+                excluded_items = ['봉인의 지팡이', '역대 성녀의 초상화']
+                items = Item.objects.exclude(name__in=excluded_items)
                 item_name = ""
                 if items.exists():
-                    random_item = random.choice(items) # 아이템 중 1개 무작위 뽑기
+                    random_item = random.choice(list(items))
                     
                     # 인벤토리에 아이템 추가 (없으면 만들고, 있으면 수량 +1)
                     inventory_item, created = Inventory.objects.get_or_create(
@@ -197,7 +198,7 @@ def supply(request):
                     )
                     inventory_item.quantity += 1
                     inventory_item.save()
-                    item_name = random_item.name # 모달창에 띄워줄 아이템 이름
+                    item_name = random_item.name
                 
                 # 3. 출석 기록 업데이트
                 charinfo.attendance_date = today_date
@@ -218,8 +219,8 @@ def supply(request):
         return JsonResponse({
             'show_modal': show_modal, 
             'modal_message': modal_message,
-            'is_success': is_success,        # 성공 여부 추가
-            'item_name': item_name,          # 뽑힌 랜덤 아이템 이름 추가
+            'is_success': is_success,
+            'item_name': item_name,
             'attendance_count': charinfo.attendance_count,
             'today_attended': charinfo.today_attended 
         })
@@ -231,7 +232,6 @@ def supply(request):
     }
     
     return render(request, "supply.html", context)
-
 
 
 
