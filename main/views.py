@@ -632,8 +632,8 @@ def use_item_view(request):
         elif item_name == "악마의 계약서":
             current_gold = character.gold
             if random.random() < 0.5:  # 50% 확률
-                character.gold = current_gold * 5
-                msg = f'성공! 보유금이 5배가 되었습니다! ({current_gold}G → {character.gold}G)'
+                character.gold = current_gold * 2
+                msg = f'성공! 보유금이 2배가 되었습니다! ({current_gold}G → {character.gold}G)'
             else:
                 character.gold = 0
                 msg = f'실패... 보유금이 0G가 되었습니다. ({current_gold}G → 0G)'
