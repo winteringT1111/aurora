@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Item, Recipe
+from .models import Item, UseLog
 from member.models import Character
 from .models import Inventory
 from users.models import CharInfo
@@ -184,7 +184,7 @@ def supply(request):
                     userinfo.save()
                 
                 # 2. 랜덤 아이템 지급 로직
-                excluded_items = ['봉인의 지팡이', '역대 성녀의 초상화']
+                excluded_items = ['봉인의 지팡이', '역대 성녀의 초상화', '봉인의 성유물']
                 items = Item.objects.exclude(name__in=excluded_items)
                 item_name = ""
                 if items.exists():
@@ -388,13 +388,22 @@ def giftbox_view(request):
     try:
         char = CharInfo.objects.get(user=request.user).char
     except CharInfo.DoesNotExist:
-        return render(request, 'giftbox.html', {'gifts': []})
+        return render(request, 'giftbox.html', {'gifts': [], 'sent_gifts': []})
 
+    # 받은 선물
     gifts = Gift.objects.filter(
         receiver=char
     ).order_by('is_claimed', '-created_at')
 
-    return render(request, 'giftbox.html', {'gifts': gifts})
+    # ✅ 보낸 선물
+    sent_gifts = Gift.objects.filter(
+        sender=request.user
+    ).order_by('-created_at')
+
+    return render(request, 'giftbox.html', {
+        'gifts': gifts,
+        'sent_gifts': sent_gifts,
+    })
 
 
 
@@ -489,6 +498,7 @@ def use_item_view(request):
             character.stat_div = reallocated['stat_div']
             character.save()
 
+        
         # ========================================================
         # 💡 2. 각성의 결정 처리
         # ========================================================
@@ -588,6 +598,89 @@ def use_item_view(request):
             inv_item.quantity -= 1
             inv_item.save()
             return JsonResponse({'success': True, 'message': msg})
+
+        
+        elif item_name == "도박꾼의 지갑":
+            # 하루 3회 제한 체크
+            today = timezone.now().date()
+            today_uses = UseLog.objects.filter(
+                user=user,
+                item=inv_item.item,
+                used_at__date=today
+            ).count()
+            if today_uses >= 3:
+                return JsonResponse({'success': False, 'message': '오늘 사용 횟수를 초과했습니다. (하루 3회 제한)'})
+
+            # 결과 목록 (실패 확률 높게)
+            outcomes = [-500, -500, -500, -400, -400, -300, +500, +600, +1000]
+            result = random.choice(outcomes)
+
+            character.gold = max(0, character.gold + result)  # 0 아래로 안 내려가게
+            character.save()
+
+            inv_item.quantity -= 1
+            inv_item.save()
+
+            UseLog.objects.create(user=user, item=inv_item.item)
+
+            sign = '+' if result > 0 else ''
+            return JsonResponse({
+                'success': True,
+                'message': f'결과: {sign}{result}G! (현재 보유금: {character.gold}G)'
+            })
+
+        elif item_name == "악마의 계약서":
+            current_gold = character.gold
+            if random.random() < 0.5:  # 50% 확률
+                character.gold = current_gold * 5
+                msg = f'성공! 보유금이 5배가 되었습니다! ({current_gold}G → {character.gold}G)'
+            else:
+                character.gold = 0
+                msg = f'실패... 보유금이 0G가 되었습니다. ({current_gold}G → 0G)'
+
+            character.save()
+            inv_item.quantity -= 1
+            inv_item.save()
+            return JsonResponse({'success': True, 'message': msg})
+
+        elif item_name == "잡화 꾸러미":
+            # 하루 5회 제한 체크
+            today = timezone.now().date()
+            today_uses = UseLog.objects.filter(
+                user=user,
+                item=inv_item.item,
+                used_at__date=today
+            ).count()
+            if today_uses >= 5:
+                return JsonResponse({'success': False, 'message': '오늘 사용 횟수를 초과했습니다. (하루 5회 제한)'})
+
+            # 랜덤 재료 아이템 뽑기 (NORMAL, ORGANIC, MINERAL 중에서)
+            material_items = list(Item.objects.filter(
+                category__in=['일반재료', '유기재료', '광물']
+            ))
+
+            if len(material_items) < 4:
+                return JsonResponse({'success': False, 'message': '재료 아이템이 부족합니다.'})
+
+            count = random.randint(4, 6)  # 4~6개 랜덤
+            chosen = random.choices(material_items, k=count)
+
+            for item_obj in chosen:
+                inv, created = Inventory.objects.get_or_create(
+                    user=user,
+                    item=item_obj,
+                    defaults={'quantity': 0}
+                )
+                inv.quantity += 1
+                inv.save()
+
+            inv_item.quantity -= 1
+            inv_item.save()
+
+            UseLog.objects.create(user=user, item=inv_item.item)
+
+            item_names = ', '.join([i.name for i in chosen])
+            return JsonResponse({'success': True, 'message': f'획득: {item_names}'})
 
         else:
             return JsonResponse({'success': False, 'message': '알 수 없는 아이템 형식 규칙입니다.'})

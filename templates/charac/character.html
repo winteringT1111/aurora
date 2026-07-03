@@ -258,6 +258,9 @@
 
 
 <script>
+
+const CURRENT_GOLD = {{ char.gold }};
+
 const RECIPIENT_LIST = [
     {% for recipient in recipient_list %}
         { id: "{{ recipient.id }}", name: "{{ recipient.name_kr }}" },
@@ -291,7 +294,7 @@ function openItemModal(id, name, category, desc, imgUrl, quantity) {
 
     const useBtn = document.getElementById('modalUseBtn');
     if (useBtn) {
-        const usableItems = ["성해의 파편수", "각성의 결정", "약탈의 낙인석", "용사의 검", "닳고 닳은 검", "마법의 레시피"];
+        const usableItems = ["성해의 파편수", "각성의 결정", "약탈의 낙인석", "용사의 검", "닳고 닳은 검", "마법의 레시피","도박꾼의 지갑", "악마의 계약서", "잡화 꾸러미"];
         useBtn.style.display = usableItems.includes(name) ? "block" : "none";
     }
 
@@ -366,6 +369,7 @@ window.onclick = function(event) {
 
 
 <script>
+
 const CURRENT_CHARACTER_STATS = {
     stat_str: parseInt("{{ char.stat_str|default:1 }}"),
     stat_agi: parseInt("{{ char.stat_agi|default:1 }}"),
@@ -437,6 +441,18 @@ function useInventoryItem() {
     } else if (currentItemName === "용사의 검") {
     document.getElementById('actionModalDesc').innerText = "자신의 용사 기여도를 1~5 높여줍니다. 제가 여러분을 지켜드리겠습니다!";
     document.getElementById('wrap-hero-sword').style.display = 'block';
+
+    } else if (currentItemName === "도박꾼의 지갑") {
+    document.getElementById('actionModalDesc').innerText = "[-500G, -400G, -300G, +500G, +600G, +1000G] 중 하나가 랜덤으로 적용됩니다. 실패 확률이 더 높습니다!";
+    document.getElementById('wrap-gamble').style.display = 'block';
+
+} else if (currentItemName === "악마의 계약서") {
+    document.getElementById('actionModalDesc').innerText = `모 아니면 도! 현재 보유금(${CURRENT_GOLD}G)의 5배를 얻거나 0원이 됩니다.`;
+    document.getElementById('wrap-devil').style.display = 'block';
+
+} else if (currentItemName === "잡화 꾸러미") {
+    document.getElementById('actionModalDesc').innerText = "랜덤 재료 아이템 4개 이상을 획득합니다. (하루 5회 제한)";
+    document.getElementById('wrap-bundle').style.display = 'block';
 
 } else if (currentItemName === "닳고 닳은 검") {
     document.getElementById('actionModalDesc').innerText = "타인의 용사 기여도를 1~5 떨어뜨립니다. 대상을 선택하세요.";

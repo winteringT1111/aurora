@@ -131,6 +131,37 @@
             </div>
         </div>
 
+        <!-- 도박꾼의 동전 -->
+<div id="wrap-gamble" class="use-action-wrap" style="display:none;">
+    <div style="text-align:center;padding:20px 0;">
+        <img src="{% static 'img/도트/도박꾼의 지갑.png' %}"
+             style="width:80px;height:80px;object-fit:contain;"
+             onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+        <p style="margin-top:15px;color:#615848;">결과는 운에 달려있습니다...</p>
+    </div>
+</div>
+
+<!-- 악마의 계약서 -->
+<div id="wrap-devil" class="use-action-wrap" style="display:none;">
+    <div style="text-align:center;padding:20px 0;">
+        <img src="{% static 'img/도트/악마의 계약서.png' %}"
+             style="width:80px;height:80px;object-fit:contain;"
+             onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+        <p style="margin-top:15px;color:#8c2323;font-weight:bold;">⚠️ 신중하게 결정하세요!</p>
+    </div>
+</div>
+
+<!-- 잡화 꾸러미 -->
+<div id="wrap-bundle" class="use-action-wrap" style="display:none;">
+    <div style="text-align:center;padding:20px 0;">
+        <img src="{% static 'img/도트/잡화 꾸러미.png' %}"
+             style="width:80px;height:80px;object-fit:contain;"
+             onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+        <p style="margin-top:15px;color:#615848;">꾸러미를 열면 랜덤 재료 4~6개를 획득합니다!</p>
+    </div>
+</div>
+
+
         <button class="modal-btn" style="width: 100%; margin-top: 25px; background: #8c2323; color: white;" onclick="submitItemUseAction()">
             ✦ 효과 확정 및 저장
         </button>

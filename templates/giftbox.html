@@ -85,6 +85,38 @@
         letter-spacing: 1px;
     }
 
+    .gift-tab-group {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.gift-tab {
+    background: #fdfcf7;
+    border: 2px solid #d4c5b0;
+    color: #8c7e6c;
+    padding: 8px 25px;
+    border-radius: 20px;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.gift-tab.active {
+    background: #4a3f31;
+    color: #fcfbf6;
+    border-color: #4a3f31;
+}
+
+.gift-tab-content {
+    max-height: 75vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
     .gift-img-box {
         width: 80px; height: 80px;
         background: #dbd4c4;
@@ -151,16 +183,24 @@
 
 {% block content %}
 <div class="giftbox-container">
+
+
+
     <div class="giftbox-title">선물함</div>
 
+<!-- ✅ 탭 버튼 -->
+<div class="gift-tab-group">
+    <button class="gift-tab active" onclick="switchGiftTab('received', this)">받은 선물</button>
+    <button class="gift-tab" onclick="switchGiftTab('sent', this)">보낸 선물</button>
+</div>
+
+<!-- 받은 선물 -->
+<div id="tab-received" class="gift-tab-content">
     <div class="gift-grid">
         {% if gifts %}
-            {% with has_unclaimed=False %}
-
-            {# 미수령 섹션 #}
             {% for gift in gifts %}
                 {% if not gift.is_claimed and forloop.first %}
-                    <div class="section-label">✦ GIFTS</div>
+                    <div class="section-label">✦ NEW GIFTS</div>
                 {% endif %}
                 {% if not gift.is_claimed %}
                 <div class="gift-card" id="gift-card-{{ gift.id }}">
@@ -173,11 +213,8 @@
                         <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
                         <div class="gift-meta">
                             <span>보낸 이 :
-                                {% if gift.is_anonymous %}
-                                    <strong>익명의 누군가</strong>
-                                {% else %}
-                                    <strong>{{ gift.sender.username }}</strong>
-                                {% endif %}
+                                {% if gift.is_anonymous %}<strong>익명의 누군가</strong>
+                                {% else %}<strong>{{ gift.sender.username }}</strong>{% endif %}
                             </span>
                             <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
                         </div>
@@ -190,13 +227,12 @@
                 {% endif %}
             {% endfor %}
 
-            {# 수령 완료 섹션 #}
             {% for gift in gifts %}
                 {% if gift.is_claimed and forloop.first %}
                     <div class="section-label">✦ CLAIMED</div>
                 {% endif %}
                 {% if gift.is_claimed %}
-                <div class="gift-card claimed" id="gift-card-{{ gift.id }}">
+                <div class="gift-card claimed">
                     <div class="claimed-badge">보관 완료</div>
                     <div class="gift-img-box">
                         <img src="{% static 'img/도트/' %}{{ gift.item.name|cut:'/' }}.png"
@@ -207,11 +243,8 @@
                         <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
                         <div class="gift-meta">
                             <span>보낸 이 :
-                                {% if gift.is_anonymous %}
-                                    <strong>익명의 누군가</strong>
-                                {% else %}
-                                    <strong>{{ gift.sender.username }}</strong>
-                                {% endif %}
+                                {% if gift.is_anonymous %}<strong>익명의 누군가</strong>
+                                {% else %}<strong>{{ gift.sender.username }}</strong>{% endif %}
                             </span>
                             <span>도착 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
                         </div>
@@ -223,15 +256,62 @@
                 </div>
                 {% endif %}
             {% endfor %}
-
-            {% endwith %}
         {% else %}
             <div class="empty-msg">도착한 선물이 없습니다.</div>
         {% endif %}
     </div>
 </div>
 
+<!-- ✅ 보낸 선물 -->
+<div id="tab-sent" class="gift-tab-content" style="display:none;">
+    <div class="gift-grid">
+        <div class="section-label">✦ SENT GIFTS</div>
+        {% if sent_gifts %}
+            {% for gift in sent_gifts %}
+            <div class="gift-card">
+                <div class="gift-img-box">
+                    <img src="{% static 'img/도트/' %}{{ gift.item.name|cut:'/' }}.png"
+                         alt="{{ gift.item.name }}"
+                         onerror="this.src='{% static 'img/도트/마법의 레시피.png' %}'; this.onerror=null;">
+                </div>
+                <div class="gift-info">
+                    <div class="gift-name">{{ gift.item.name }} x {{ gift.quantity }}</div>
+                    <div class="gift-meta">
+                        <span>받는 이 : <strong>{{ gift.receiver.name_kr }}</strong></span>
+                        <span>보낸 시간 : {{ gift.created_at|date:"Y-m-d H:i" }}</span>
+                        <span>
+                            상태 :
+                            {% if gift.is_claimed %}
+                                <strong style="color:#8c7e6c;">✔ 수령 완료</strong>
+                            {% else %}
+                                <strong style="color:#ba9e7a;">⏳ 미수령</strong>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="gift-msg-box">
+                        {% if gift.message %}{{ gift.message }}{% else %}( 메시지가 없습니다 ){% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-msg">보낸 선물이 없습니다.</div>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+
+
+
+
 <script>
+    function switchGiftTab(tab, btn) {
+    document.querySelectorAll('.gift-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.gift-tab-content').forEach(c => c.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById(`tab-${tab}`).style.display = 'block';
+}
 function claimGift(giftId) {
     const csrftoken = '{{ csrf_token }}';
 
