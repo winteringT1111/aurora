@@ -1,7 +1,16 @@
 from django.db import models
-
+from django.conf import settings
 # Create your models here.
 from django.db import models
+
+# models.py
+class UseLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    item = models.ForeignKey('Item', on_delete=models.CASCADE)
+    used_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "아이템 사용 로그"
 
 class Item(models.Model):
     # 1. 아이템 종류 카테고리 (원하시는 만큼 추가 가능)
