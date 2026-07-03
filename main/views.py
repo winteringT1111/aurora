@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from .models import Item, UseLog
+from .models import Item, UseLog, Recipe
 from member.models import Character
 from .models import Inventory
 from users.models import CharInfo
