@@ -176,15 +176,15 @@ def supply(request):
                 is_success = False
             else:
                 # 1. 기본 재화 지급 (골드 추가 및 에너지 100으로 MAX 충전)
-                userinfo.gold += 100 
-                if userinfo.energy > 200:
+                userinfo.gold += 3000 
+                if userinfo.energy > 1000:
                     pass
                 else:
-                    userinfo.energy = 200
+                    userinfo.energy = 1000
                     userinfo.save()
                 
                 # 2. 랜덤 아이템 지급 로직
-                excluded_items = ['봉인의 지팡이', '역대 성녀의 초상화', '봉인의 성유물']
+                excluded_items = ['봉인의 지팡이', '역대 성녀의 초상화', '봉인의 성유물', '봉인의 검']
                 items = Item.objects.exclude(name__in=excluded_items)
                 item_name = ""
                 if items.exists():
